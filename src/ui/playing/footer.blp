@@ -64,6 +64,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
       icon-name: "media-skip-backward-symbolic";
       valign: center;
       clicked => $previous_clicked();
+      tooltip-text: _("Previous");
       styles [
         "circular"
       ]
@@ -78,6 +79,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
           icon-name: "media-playback-start-symbolic";
           valign: center;
           clicked => $play_clicked();
+          tooltip-text: _("Play");
           styles [
             "circular",
             "accent",
@@ -92,6 +94,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
           icon-name: "media-playback-pause-symbolic";
           valign: center;
           clicked => $pause_clicked();
+          tooltip-text: _("Pause");
           styles [
             "circular",
             "accent",
@@ -105,6 +108,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
       icon-name: "media-skip-forward-symbolic";
       valign: center;
       clicked => $next_clicked();
+      tooltip-text: _("Next");
       styles [
         "circular"
       ]

@@ -170,14 +170,27 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         model = integration.loaded_models.get(song_id)
         if model:
+            # Title
             self.title_el.set_label(model.title)
+            self.title_el.set_tooltip_text(model.title)
+
+            # Artist
             self.artist_el.get_child().set_label(model.artists[0].get('name'))
             self.artist_el.set_action_target_value(GLib.Variant.new_string(model.artists[0].get('id')))
+            self.artist_el.set_tooltip_text(model.artists[0].get('name'))
+
+            # Album
             self.album_el.get_child().set_label(model.album)
             self.album_el.set_action_target_value(GLib.Variant.new_string(model.albumId))
+            self.album_el.set_tooltip_text(model.album)
+
+            # Progressbar
             self.progress_el.get_adjustment().set_upper(model.duration)
             integration.loaded_models.get('currentSong').positionSeconds = 0
+
+            # Cover
             threading.Thread(target=self.update_cover_art).start()
+
             self.start_current_song()
         GLib.idle_add(self.change_bottom_sheet_state, bool(song_id))
 

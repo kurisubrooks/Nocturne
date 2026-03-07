@@ -117,6 +117,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
             icon-name: "media-skip-backward-symbolic";
             valign: center;
             clicked => $previous_clicked();
+            tooltip-text: _("Previous");
             styles [
               "circular"
             ]
@@ -131,6 +132,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 icon-name: "media-playback-start-symbolic";
                 valign: center;
                 clicked => $play_clicked();
+                tooltip-text: _("Play");
                 styles [
                   "circular",
                   "accent",
@@ -145,6 +147,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 icon-name: "media-playback-pause-symbolic";
                 valign: center;
                 clicked => $pause_clicked();
+                tooltip-text: _("Pause");
                 styles [
                   "circular",
                   "accent",
@@ -158,6 +161,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
             icon-name: "media-skip-forward-symbolic";
             valign: center;
             clicked => $next_clicked();
+            tooltip-text: _("Next");
             styles [
               "circular"
             ]
@@ -213,6 +217,7 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
 
           Gtk.MenuButton volume_button_el {
             icon-name: "speaker-2-symbolic";
+            tooltip-text: _("Volume");
             popover: Gtk.Popover {
               child: Gtk.Box {
                 orientation: horizontal;
