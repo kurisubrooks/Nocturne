@@ -81,6 +81,11 @@ class NocturneWindow(Adw.ApplicationWindow):
         queue_page = self.playing_navigationview.find_page('queue')
         queue_page.play_next([model_id])
 
+    def play_song_later(self, action, model_id:GLib.Variant):
+        model_id = model_id.unpack()
+        queue_page = self.playing_navigationview.find_page('queue')
+        queue_page.play_later([model_id])
+
     def play_album(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
         integration = navidrome.get_current_integration()
@@ -100,6 +105,16 @@ class NocturneWindow(Adw.ApplicationWindow):
             integration.verifyAlbum(album.id, force_update=True, use_threading=False)
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_next([s.get('id') for s in album.song])
+
+    def play_album_later(self, action, model_id:GLib.Variant):
+        model_id = model_id.unpack()
+        integration = navidrome.get_current_integration()
+        album = integration.loaded_models.get(model_id)
+
+        if album:
+            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
+            queue_page = self.playing_navigationview.find_page('queue')
+            queue_page.play_later([s.get('id') for s in album.song])
 
     def play_playlist(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
@@ -121,21 +136,30 @@ class NocturneWindow(Adw.ApplicationWindow):
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_next([s.get('id') for s in playlist.entry])
 
+    def play_playlist_later(self, action, model_id:GLib.Variant):
+        model_id = model_id.unpack()
+        integration = navidrome.get_current_integration()
+        playlist = integration.loaded_models.get(model_id)
+
+        if playlist:
+            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
+            queue_page = self.playing_navigationview.find_page('queue')
+            queue_page.play_later([s.get('id') for s in playlist.entry])
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         """
         Actions to implement:
 
+        play_playlist_shuffle
         play_artist_shuffle
-        play_artist_radio
         play_album_suffle
-        play_song_next
-        play_song_later
+
+        play_artist_radio
+
         add_song_to_playlist
         add_album_to_playlist
-        play_album_later
-        play_album_next
         """
 
         self.get_application().create_action(
@@ -147,6 +171,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.get_application().create_action(
             name="play_song_next",
             callback=self.play_song_next,
+            parameter_type=GLib.VariantType.new('s')
+        )
+
+        self.get_application().create_action(
+            name="play_song_later",
+            callback=self.play_song_later,
             parameter_type=GLib.VariantType.new('s')
         )
 
@@ -163,6 +193,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         )
 
         self.get_application().create_action(
+            name="play_album_later",
+            callback=self.play_album_next,
+            parameter_type=GLib.VariantType.new('s')
+        )
+
+        self.get_application().create_action(
             name="play_playlist",
             callback=self.play_playlist,
             parameter_type=GLib.VariantType.new('s')
@@ -170,6 +206,12 @@ class NocturneWindow(Adw.ApplicationWindow):
 
         self.get_application().create_action(
             name="play_playlist_next",
+            callback=self.play_playlist_next,
+            parameter_type=GLib.VariantType.new('s')
+        )
+
+        self.get_application().create_action(
+            name="play_playlist_later",
             callback=self.play_playlist_next,
             parameter_type=GLib.VariantType.new('s')
         )

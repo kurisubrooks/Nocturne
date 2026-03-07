@@ -33,6 +33,7 @@ class SongRow(Adw.ActionRow):
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'title', self.update_title)
         integration.connect_to_model(self.id, 'artists', self.update_artists)
@@ -153,18 +154,6 @@ class SongRow(Adw.ActionRow):
             queue = self.get_ancestor(SongQueue)
             if len(queue.get_selected_rows()) == 0:
                 queue.set_selected_mode()
-
-    @Gtk.Template.Callback()
-    def play_later_clicked(self, button):
-        ''
-
-    @Gtk.Template.Callback()
-    def add_to_playlist_clicked(self, button):
-        ''
-
-    @Gtk.Template.Callback()
-    def remove_clicked(self, button):
-        ''
 
     @Gtk.Template.Callback()
     def option_selected(self, button):

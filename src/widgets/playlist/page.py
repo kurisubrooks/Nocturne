@@ -18,6 +18,7 @@ class PlaylistPage(Adw.NavigationPage):
 
     play_el = Gtk.Template.Child()
     play_next_el = Gtk.Template.Child()
+    play_later_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -29,6 +30,7 @@ class PlaylistPage(Adw.NavigationPage):
 
         self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)

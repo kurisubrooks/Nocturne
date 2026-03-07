@@ -35,12 +35,15 @@ class PlayingQueuePage(Adw.NavigationPage):
         if len(list(self.song_list_el.list_el)) == 0 or not current_song_id:
             self.replace_queue(songs)
         else:
+            for row in list(self.song_list_el.list_el):
+                if row.id in songs and row.id != current_song_id:
+                    self.song_list_el.list_el.remove(row)
             current_song_index = -1
             for i, row in enumerate(list(self.song_list_el.list_el)):
                 if row.id == current_song_id:
                     current_song_index = i + 1
             songs.reverse()
-            for song_id in [s for s in songs if s not in self.song_list_el.get_all_ids()]:
+            for song_id in [s for s in songs if s != current_song_id]:
                 integration.verifySong(song_id, use_threading=False)
                 self.song_list_el.list_el.insert(
                     SongRow(
@@ -51,4 +54,22 @@ class PlayingQueuePage(Adw.NavigationPage):
                     current_song_index
                 )
 
+    def play_later(self, songs:list):
+        integration = get_current_integration()
+        current_song_id = integration.loaded_models.get('currentSong').songId
+        if len(list(self.song_list_el.list_el)) == 0:
+            self.replace_queue(songs)
+        else:
+            for row in list(self.song_list_el.list_el):
+                if row.id in songs and row.id != current_song_id:
+                    self.song_list_el.list_el.remove(row)
+            for song_id in [s for s in songs if s != current_song_id]:
+                integration.verifySong(song_id, use_threading=False)
+                self.song_list_el.list_el.append(
+                    SongRow(
+                        song_id,
+                        draggable=True,
+                        removable=True
+                    )
+                )
 

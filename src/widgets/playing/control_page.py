@@ -229,7 +229,7 @@ class PlayingControlPage(Adw.NavigationPage):
         r, g, b = [x / 255.0 for x in accent]
         h, l, s = colorsys.rgb_to_hls(r,g,b)
 
-        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.2) % 1.0, l, s)]
+        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.1) % 1.0, l, s)]
         rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
 
         css = f"""

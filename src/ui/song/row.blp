@@ -145,7 +145,8 @@ template $NocturneSongRow: Adw.ActionRow {
                     halign: start;
                   };
 
-                  clicked => $play_later_clicked();
+                  action-name: "app.play_song_later";
+                  clicked => $option_selected();
                 }
 
                 Gtk.Button {
@@ -160,7 +161,8 @@ template $NocturneSongRow: Adw.ActionRow {
                     icon-name: "playlist-symbolic";
                     halign: start;
                   };
-                  clicked => $add_to_playlist_clicked();
+
+                  clicked => $option_selected();
                 }
 
                 Gtk.Button remove_el {
@@ -175,7 +177,8 @@ template $NocturneSongRow: Adw.ActionRow {
                     icon-name: "user-trash-symbolic";
                     halign: start;
                   };
-                  clicked => $remove_clicked();
+
+                  clicked => $option_selected();
                 }
               };
             };
