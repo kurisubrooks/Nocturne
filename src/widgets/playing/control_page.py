@@ -47,7 +47,7 @@ class PlayingControlPage(Adw.NavigationPage):
         bus = self.player.get_bus()
         bus.add_signal_watch()
         bus.connect("message", self.on_player_message)
-        self.volume_el.set_value(1) ##TODO save volume within sessions
+        self.volume_el.set_value(0.25) ##TODO save volume within sessions
 
     @Gtk.Template.Callback()
     def view_queue(self, button):
@@ -89,7 +89,8 @@ class PlayingControlPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
-        value = scale_el.get_value()
+        value = round(scale_el.get_value(), 2)
+        print(value)
         self.player.set_property("volume", value)
         if value == 0:
             self.volume_button_el.set_icon_name("speaker-0-symbolic")
