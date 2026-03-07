@@ -71,9 +71,8 @@ class Navidrome(GObject.Object):
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         return '{}/rest/stream?{}'.format(self.base_url.strip('/'), query_string)
 
-    def getCoverArt(self, id:str=None, size:int=480) -> Gdk.Paintable:
-        # Returns a paintable at the specified size, should be used directly in GTK without modifications
-        # It also returns a pretty icon as a fallback if it fails for some reason
+    def getCoverArtWithBytes(self, id:str=None, size:int=480) -> tuple:
+        # returns bytes, Gdk.Paintable
         if id:
             params = {
                 **self.get_base_params(),
@@ -85,12 +84,12 @@ class Navidrome(GObject.Object):
 
             if response_bytes and len(response_bytes) > 0:
                 try:
-                    return Gdk.Texture.new_from_bytes(GLib.Bytes.new(response_bytes))
+                    return response_bytes, Gdk.Texture.new_from_bytes(GLib.Bytes.new(response_bytes))
                 except Exception as e:
                     print('Texture error:', e)
 
         theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
-        return theme.lookup_icon(
+        return b'', theme.lookup_icon(
             'image-missing-symbolic',
             None,
             size,
@@ -98,6 +97,11 @@ class Navidrome(GObject.Object):
             Gtk.TextDirection.NONE,
             0
         )
+
+    def getCoverArt(self, id:str=None, size:int=480) -> Gdk.Paintable:
+        # Returns a paintable at the specified size, should be used directly in GTK without modifications
+        # It also returns a pretty icon as a fallback if it fails for some reason
+        return self.getCoverArtWithBytes(id, size)[1]
 
     def ping(self) -> bool:
         response = self.make_request('ping')

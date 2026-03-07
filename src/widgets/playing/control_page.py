@@ -2,8 +2,10 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst
 from ...navidrome import get_current_integration
-import threading, random
+import threading, random, io, colorsys
 from datetime import datetime
+from PIL import Image
+from colorthief import ColorThief
 
 Gst.init(None)
 
@@ -206,15 +208,47 @@ class PlayingControlPage(Adw.NavigationPage):
             self.starred_connection = None
             self.last_song_id = None
 
+    def update_palette(self, raw_bytes:bytes):
+        img_io = io.BytesIO(raw_bytes)
+        accent = ColorThief(img_io).get_color(quality=10)
+        r, g, b = [x / 255.0 for x in accent]
+        h, l, s = colorsys.rgb_to_hls(r,g,b)
+
+        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h - 0.1) % 1.0, l, s)]
+        rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
+
+        css = f"""
+        .dynamic-accent-bg {{
+            background-image: linear-gradient(
+                to bottom,
+                rgba({','.join(rgb1)},0.2),
+                rgba({','.join(rgb2)},0.2)
+            );
+            transition: background-image 0.5s ease-in-out;
+        }}
+        """
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css.encode('utf-8'))
+        navigation_view = self.get_ancestor(Adw.NavigationView)
+        if navigation_view:
+            navigation_view.get_style_context().add_provider(
+                provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+            navigation_view.add_css_class('dynamic-accent-bg')
+
+
 
     def update_cover_art(self):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').songId
         song = integration.loaded_models.get(song_id)
         if song:
-            paintable = integration.getCoverArt(song.coverArt, 480)
+            raw_bytes, paintable = integration.getCoverArtWithBytes(song.coverArt, 480)
+
             if isinstance(paintable, Gdk.MemoryTexture):
                 GLib.idle_add(self.cover_el.set_from_paintable, paintable)
+                threading.Thread(target=self.update_palette, args=(raw_bytes,)).start()
             else:
                 GLib.idle_add(self.cover_el.set_from_paintable, None)
 
