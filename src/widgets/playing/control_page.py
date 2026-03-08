@@ -90,7 +90,6 @@ class PlayingControlPage(Adw.NavigationPage):
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
         value = round(scale_el.get_value(), 2)
-        print(value)
         self.player.set_property("volume", value)
         if value == 0:
             self.volume_button_el.set_icon_name("speaker-0-symbolic")
@@ -305,3 +304,4 @@ class PlayingControlPage(Adw.NavigationPage):
 
         return True
         
+
