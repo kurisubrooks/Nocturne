@@ -14,22 +14,11 @@ class PlayingFooter(Gtk.Overlay):
     progress_el = Gtk.Template.Child()
     state_stack_el = Gtk.Template.Child()
 
-    def __init__(self):
+    def setup(self):
+        # Called after login
         integration = get_current_integration()
-        super().__init__()
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
         integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
-        GLib.idle_add(self.connect_play_state)
-
-    def connect_play_state(self):
-        self.get_root().playing_page.state_stack_el.bind_property(
-            "visible-child-name",
-            self.state_stack_el,
-            "visible-child-name",
-            GObject.BindingFlags.SYNC_CREATE,
-            None,
-            None
-        )
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()

@@ -29,9 +29,20 @@ class PlayingControlPage(Adw.NavigationPage):
         # Used to disconnect star_el when song changes
         self.starred_connection = None
         self.last_song_id = None
-
-        integration = get_current_integration()
         super().__init__()
+
+        self.is_seeking = False
+        self.player = Gst.ElementFactory.make("playbin", "music-player")
+        bus = self.player.get_bus()
+        bus.add_signal_watch()
+        bus.connect("message", self.on_player_message)
+        self.volume_el.set_value(0.25) ##TODO save volume within sessions
+        self.player.set_property("volume", 0.25)
+        GLib.idle_add(self.setup_sidebar_button_connection)
+
+    def setup(self):
+        # Called after login
+        integration = get_current_integration()
         integration.connect_to_model('currentSong', 'songId', self.song_changed, use_gtk_thread=False)
 
         integration.loaded_models.get('currentSong').bind_property(
@@ -42,15 +53,6 @@ class PlayingControlPage(Adw.NavigationPage):
             None,
             None
         )
-
-        self.is_seeking = False
-        self.player = Gst.ElementFactory.make("playbin", "music-player")
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.connect("message", self.on_player_message)
-        self.volume_el.set_value(0.25) ##TODO save volume within sessions
-        self.player.set_property("volume", 0.25)
-        GLib.idle_add(self.setup_sidebar_button_connection)
 
     def setup_sidebar_button_connection(self):
         self.get_root().breakpoint_el.connect('apply', lambda *_: self.show_sidebar_el.set_visible(True))
@@ -124,6 +126,9 @@ class PlayingControlPage(Adw.NavigationPage):
         if not self.is_seeking:
             stack_page_name = 'play' if state in (Gst.State.NULL, Gst.State.READY, Gst.State.PAUSED) else 'pause'
             self.state_stack_el.set_visible_child_name(stack_page_name)
+            root = self.get_root()
+            if root:
+                root.footer.state_stack_el.set_visible_child_name(stack_page_name)
 
     def auto_play(self):
         GLib.idle_add(self.get_root().queue_page.autoplay_spinner_el.set_visible, True)
@@ -239,10 +244,12 @@ class PlayingControlPage(Adw.NavigationPage):
             integration.loaded_models.get(self.last_song_id).disconnect(self.starred_connection)
 
         if model:
+            self.star_el.set_action_name('app.toggle_star')
             self.star_el.set_action_target_value(GLib.Variant.new_string(song_id))
             self.starred_connection = integration.connect_to_model(song_id, 'starred', self.update_starred)
             self.last_song_id = song_id
         else:
+            self.star_el.set_action_name('')
             self.star_el.set_action_target_value(GLib.Variant.new_string(""))
             self.starred_connection = None
             self.last_song_id = None
@@ -339,6 +346,7 @@ class PlayingControlPage(Adw.NavigationPage):
 
         return True
         
+
 
 
 

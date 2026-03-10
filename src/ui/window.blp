@@ -19,70 +19,84 @@ template $NocturneWindow: Adw.ApplicationWindow {
   }
 
   content: Adw.ToastOverlay {
-    child: Adw.BottomSheet main_bottom_sheet {
-      full-width: false;
-      show-drag-handle: false;
-      notify::reveal-bottom-bar => $bottom_bar_toggled();
+    Gtk.Stack main_stack {
+      Gtk.StackPage {
+        name: "loading";
+        child: Adw.Spinner {};
+      }
+      Gtk.StackPage {
+        name: "login";
+        child: $NocturneLoginPage login_page {};
+      }
+      Gtk.StackPage {
+        name: "content";
+        child: Adw.BottomSheet main_bottom_sheet {
+          full-width: false;
+          show-drag-handle: false;
+          reveal-bottom-bar: false;
+          notify::reveal-bottom-bar => $bottom_bar_toggled();
 
-      content: Adw.NavigationSplitView main_split_view {
-        show-content: true;
-        sidebar: $NocturneMainSidebar main_sidebar {};
-        content: Adw.NavigationPage {
-          child: Adw.NavigationView main_navigationview {
-            $NocturneHomePage home_page {}
-          };
-        };
-      };
-
-      bottom-bar: $NocturnePlayingFooter {
-        styles [
-          "dynamic-accent-bg"
-        ]
-      };
-
-      sheet: Adw.NavigationSplitView sheet_split_view {
-        sidebar-width-fraction: 0.5;
-        max-sidebar-width: 320;
-        styles [
-          "dynamic-accent-bg"
-        ]
-
-        sidebar: $NocturnePlayingControlPage playing_page {};
-        content: Adw.NavigationPage {
-          title: _("Song Details");
-          child: Adw.ToolbarView {
-            [top]
-            Adw.HeaderBar sheet_header {
-              title-widget: Adw.ViewSwitcher {
-                stack: sheet_stack;
-                policy: wide;
+          content: Adw.NavigationSplitView main_split_view {
+            show-content: true;
+            sidebar: $NocturneMainSidebar main_sidebar {};
+            content: Adw.NavigationPage {
+              child: Adw.NavigationView main_navigationview {
+                $NocturneHomePage home_page {}
               };
-            }
-            [bottom]
-            Adw.ViewSwitcherBar sheet_switch_bar {
-              stack: sheet_stack;
-            }
+            };
+          };
 
-            Adw.ViewStack sheet_stack {
-              enable-transitions: true;
-              vhomogeneous: true;
-              hhomogeneous: true;
-              Adw.ViewStackPage {
-                name: "queue";
-                title: _("Queue");
-                icon-name: "playlist-symbolic";
-                child: $NocturnePlayingQueuePage queue_page {};
-              }
-              Adw.ViewStackPage {
-                name: "lyrics";
-                title: _("Lyrics");
-                icon-name: "format-justify-center-symbolic";
-                child: $NocturnePlayingLyricsPage lyrics_page {};
-              }
-            }
+          bottom-bar: $NocturnePlayingFooter footer {
+            styles [
+              "dynamic-accent-bg"
+            ]
+          };
+
+          sheet: Adw.NavigationSplitView sheet_split_view {
+            sidebar-width-fraction: 0.5;
+            max-sidebar-width: 320;
+            styles [
+              "dynamic-accent-bg"
+            ]
+
+            sidebar: $NocturnePlayingControlPage playing_page {};
+            content: Adw.NavigationPage {
+              title: _("Song Details");
+              child: Adw.ToolbarView {
+                [top]
+                Adw.HeaderBar sheet_header {
+                  title-widget: Adw.ViewSwitcher {
+                    stack: sheet_stack;
+                    policy: wide;
+                  };
+                }
+                [bottom]
+                Adw.ViewSwitcherBar sheet_switch_bar {
+                  stack: sheet_stack;
+                }
+
+                Adw.ViewStack sheet_stack {
+                  enable-transitions: true;
+                  vhomogeneous: true;
+                  hhomogeneous: true;
+                  Adw.ViewStackPage {
+                    name: "queue";
+                    title: _("Queue");
+                    icon-name: "playlist-symbolic";
+                    child: $NocturnePlayingQueuePage queue_page {};
+                  }
+                  Adw.ViewStackPage {
+                    name: "lyrics";
+                    title: _("Lyrics");
+                    icon-name: "format-justify-center-symbolic";
+                    child: $NocturnePlayingLyricsPage lyrics_page {};
+                  }
+                }
+              };
+            };
           };
         };
-      };
-    };
+      }
+    }
   };
 }

@@ -3,7 +3,8 @@ moduledir = get_option('prefix') / get_option('datadir') / meson.project_name() 
 widgets = [
   '__init__.py',
   'home.py',
-  'sidebar.py'
+  'sidebar.py',
+  'login.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

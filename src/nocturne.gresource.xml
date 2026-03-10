@@ -46,6 +46,7 @@
 
     <file alias="pages/home.ui">ui/pages/home.ui</file>
     <file alias="pages/sidebar.ui">ui/pages/sidebar.ui</file>
+    <file alias="pages/login.ui">ui/pages/login.ui</file>
 
     <file alias="album/button.ui">ui/album/button.ui</file>
     <file alias="album/page.ui">ui/album/page.ui</file>

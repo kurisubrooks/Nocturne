@@ -14,11 +14,17 @@ class HomePage(Adw.NavigationPage):
     artist_list_el = Gtk.Template.Child()
     playlist_list_el = Gtk.Template.Child()
 
-    def __init__(self):
-        super().__init__()
+    def update_all(self):
         self.update_album_list()
         self.update_artist_list()
         self.update_playlist_list()
+
+    def restore_play_queue(self):
+        integration = navidrome.get_current_integration()
+        current_id, song_list = integration.getPlayQueue()
+        if len(song_list) > 0:
+            GLib.idle_add(self.get_root().queue_page.replace_queue, song_list, current_id)
+            GLib.idle_add(lambda: self.get_root().playing_page.player.set_state(Gst.State.PAUSED) and False)
 
     def update_album_list(self):
         for i in range(self.album_list_el.get_n_pages()):

@@ -104,8 +104,11 @@ class Navidrome(GObject.Object):
         return self.getCoverArtWithBytes(id, size)[1]
 
     def ping(self) -> bool:
-        response = self.make_request('ping')
-        return response.get('status') == 'ok'
+        try:
+            response = self.make_request('ping')
+            return response.get('status') == 'ok'
+        except Exception:
+            return False
 
     def getAlbumList(self, list_type:str="frequent", size:int=10, offset:int=0) -> list:
         # list_type = random, newest, frequent, recent, starred, alphabeticalByName, alphabeticalByArtist
@@ -301,11 +304,12 @@ class Navidrome(GObject.Object):
         return response.json()
 
 
-integration = Navidrome('http://127.0.0.1:4533', 'tentri')
-current_song = None
+integration = None
 
 def get_current_integration():
     global integration
     return integration
 
-
+def set_current_integration(new_integration):
+    global integration
+    integration = new_integration

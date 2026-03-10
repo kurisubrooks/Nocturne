@@ -20,14 +20,13 @@ class PlayingLyricsPage(Gtk.Stack):
     lrc_list_el = Gtk.Template.Child()
     lrc_model_parent = Gtk.Template.Child()
     scrolledwindow = Gtk.Template.Child()
+    code_is_selecting = False # used so that `on_lrc_selection` is only executed when manually selecting
 
-    def __init__(self):
+    def setup(self):
+        # Called after login
         integration = get_current_integration()
-        self.current_row = None
-        super().__init__()
         integration.connect_to_model('currentSong', 'songId', self.song_changed, use_gtk_thread=False)
         integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed, use_gtk_thread=False)
-        self.code_is_selecting = False # used so that `on_lrc_selection` is only executed when manually selecting
 
     def prepare_lrc(self, lrc_str:str) -> list:
         lrc_lines = []
@@ -148,14 +147,6 @@ class PlayingLyricsPage(Gtk.Stack):
                 self.code_is_selecting = True
                 self.lrc_model_parent.set_selected(best_match)
                 self.code_is_selecting = False
-
-    #@Gtk.Template.Callback()
-    def row_activated(self, listbox, row):
-        self.get_root().playing_page.player.seek_simple(
-            Gst.Format.TIME,
-            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-            int(row.ms/1000 * Gst.SECOND)
-        )
 
     @Gtk.Template.Callback()
     def lrc_setup(self, factory, list_item):

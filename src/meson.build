@@ -12,6 +12,7 @@ blueprints = files(
 
   'ui/pages/home.blp',
   'ui/pages/sidebar.blp',
+  'ui/pages/login.blp',
 
   'ui/album/button.blp',
   'ui/album/page.blp',

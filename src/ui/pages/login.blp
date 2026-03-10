@@ -1,0 +1,44 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneLoginPage: Adw.NavigationPage {
+  title: _("Login");
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {}
+
+    content: Adw.StatusPage {
+      icon-name: "com.jeffser.Nocturne";
+      title: _("Login to Navidrome");
+      child: Gtk.ListBox {
+        styles [
+          "boxed-list-separate"
+        ]
+        valign: center;
+        halign: center;
+
+        Adw.EntryRow url_el {
+          title: _("Url");
+        }
+
+        Adw.EntryRow user_el {
+          title: _("Username");
+        }
+
+        Adw.PasswordEntryRow password_el {
+          title: _("Password");
+        }
+
+        Adw.ButtonRow {
+          styles [
+            "suggested-action"
+          ]
+          title: _("Login");
+
+          activated => $login_button_clicked();
+          activatable: true;
+        }
+      };
+    };
+  };
+}
