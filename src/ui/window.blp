@@ -14,7 +14,6 @@ template $NocturneWindow: Adw.ApplicationWindow {
       main_split_view.show-content: true;
       sheet_header.title-widget: null;
       sheet_switch_bar.reveal: true;
-      main_bottom_sheet.show-drag-handle: true;
       main_sidebar.mode: page;
     }
   }
@@ -63,18 +62,11 @@ template $NocturneWindow: Adw.ApplicationWindow {
             };
           };
 
-          bottom-bar: $NocturnePlayingFooter footer {
-            styles [
-              "dynamic-accent-bg"
-            ]
-          };
+          bottom-bar: $NocturnePlayingFooter footer {};
 
           sheet: Adw.NavigationSplitView sheet_split_view {
             sidebar-width-fraction: 0.5;
             max-sidebar-width: 320;
-            styles [
-              "dynamic-accent-bg"
-            ]
 
             sidebar: $NocturnePlayingControlPage playing_page {};
             content: Adw.NavigationPage {

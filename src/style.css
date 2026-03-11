@@ -89,22 +89,8 @@ image.album-play-overlay:hover {
   );
 }
 
-.dynamic-accent-bg > .sidebar-pane {
-  background: color-mix(in srgb, var(--sidebar-bg-color) 40%, transparent);
-}
-
-@keyframes dynamic-background-animation {
-  from {background-size: 100%;}
-  to {background-size: 200%;}
-}
-
-window.playing .dynamic-accent-bg {
-  animation-name: dynamic-background-animation;
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-  animation-delay: -2s;
-  animation-direction: alternate;
+sheet .sidebar-pane {
+  background: color-mix(in srgb, var(--sidebar-bg-color) 10%, transparent);
 }
 
 

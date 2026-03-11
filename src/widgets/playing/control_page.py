@@ -262,13 +262,29 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        .dynamic-accent-bg {{
-            background-image: linear-gradient(
-                to bottom right,
-                rgba({','.join([str(c) for c in palette[0]])},0.25),
-                rgba({','.join([str(c) for c in palette[1]])},0.25)
-            );
-            transition: background-image 0.5s ease-in-out;
+        @media (prefers-color-scheme: dark) {{
+            .dynamic-accent-bg {{
+                background-image: linear-gradient(
+                    to bottom right,
+                    rgba({','.join([str(c) for c in palette[0]])},0.25),
+                    rgba({','.join([str(c) for c in palette[1]])},0.25)
+                );
+                transition: background-image 0.5s ease-in-out;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+            }}
+        }}
+        @media (prefers-color-scheme: light) {{
+            .dynamic-accent-bg {{
+                background-image: linear-gradient(
+                    to bottom right,
+                    rgba({','.join([str(c) for c in palette[0]])},0.50),
+                    rgba({','.join([str(c) for c in palette[1]])},0.50)
+                );
+                transition: background-image 0.5s ease-in-out;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+            }}
         }}
         """
         provider = Gtk.CssProvider()
@@ -278,6 +294,7 @@ class PlayingControlPage(Adw.NavigationPage):
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+        self.get_ancestor(Gtk.Stack).add_css_class('dynamic-accent-bg')
 
     def update_cover_art(self):
         integration = get_current_integration()
