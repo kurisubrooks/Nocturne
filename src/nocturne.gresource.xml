@@ -60,6 +60,9 @@
     <file alias="song/row.ui">ui/song/row.ui</file>
     <file alias="song/queue.ui">ui/song/queue.ui</file>
 
+    <file alias="containers/carousel.ui">ui/containers/carousel.ui</file>
+    <file alias="containers/wrapbox.ui">ui/containers/wrapbox.ui</file>
+
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
   </gresource>
 </gresources>

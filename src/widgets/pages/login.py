@@ -27,7 +27,7 @@ class LoginPage(Adw.NavigationPage):
         integration = Navidrome(ip, user)
         if integration.ping():
             set_current_integration(integration)
-            self.login_success()
+            GLib.idle_add(self.login_success)
         else:
             self.password_el.add_css_class('error')
             GLib.idle_add(lambda: self.get_root().main_stack.set_visible_child_name('login'))
@@ -35,10 +35,13 @@ class LoginPage(Adw.NavigationPage):
     def login_success(self):
         root = self.get_root()
         root.main_stack.set_visible_child_name('content')
-        root.home_page.update_all()
+
         root.playing_page.setup()
         root.footer.setup()
         root.lyrics_page.setup()
+
+        threading.Thread(target=root.home_page.update_all).start()
+        root.restore_play_queue()
 
     @Gtk.Template.Callback()
     def login_button_clicked(self, button):

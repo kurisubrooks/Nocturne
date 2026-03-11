@@ -29,6 +29,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     main_navigationview = Gtk.Template.Child()
     home_page = Gtk.Template.Child()
     main_bottom_sheet = Gtk.Template.Child()
+    main_split_view = Gtk.Template.Child()
     playing_page = Gtk.Template.Child()
     queue_page = Gtk.Template.Child()
     lyrics_page = Gtk.Template.Child()
@@ -60,6 +61,12 @@ class NocturneWindow(Adw.ApplicationWindow):
             parameter_type=GLib.VariantType.new(parameter_type) if parameter_type else None
         )
 
+    def restore_play_queue(self):
+        integration = navidrome.get_current_integration()
+        current_id, song_list = integration.getPlayQueue()
+        if len(song_list) > 0:
+            GLib.idle_add(self.get_root().queue_page.replace_queue, song_list, current_id)
+            GLib.idle_add(lambda: self.get_root().playing_page.player.set_state(Gst.State.PAUSED) and False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

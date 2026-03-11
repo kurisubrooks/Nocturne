@@ -109,77 +109,9 @@ template $NocturneArtistPage: Adw.NavigationPage {
             }
           }
 
-          Gtk.Label album_label_el {
-            styles [
-              "title-2"
-            ]
-            label: _("Albums");
-            ellipsize: end;
-            halign: start;
-          }
+          $NocturneWrapbox album_wrapbox {}
 
-          Adw.WrapBox album_list_el {
-            line-spacing: 10;
-            child-spacing: 10;
-            hexpand: true;
-            halign: center;
-
-            Adw.Spinner {
-              hexpand: true;
-              width-request: 32;
-              height-request: 32;
-              margin-top: 10;
-              margin-bottom: 10;
-            }
-          }
-
-          Gtk.Label artist_label_el {
-            styles [
-              "title-2"
-            ]
-            label: _("Similar Artists");
-            ellipsize: end;
-            halign: start;
-          }
-
-          Gtk.Overlay {
-            [overlay]
-            Adw.Bin {
-              halign: start;
-              vexpand: true;
-              width-request: 10;
-              styles [
-                "carousel-overlay-left"
-              ]
-            }
-
-            [overlay]
-            Adw.Bin {
-              halign: end;
-              vexpand: true;
-              width-request: 10;
-              styles [
-                "carousel-overlay-right"
-              ]
-            }
-
-            child: Adw.Carousel artist_list_el {
-              hexpand: true;
-              halign: fill;
-              spacing: 10;
-              allow-long-swipes: true;
-              allow-mouse-drag: true;
-
-              Adw.Spinner {
-                hexpand: true;
-                width-request: 32;
-                height-request: 32;
-                margin-top: 10;
-                margin-bottom: 10;
-              }
-            };
-          }
-
+          $NocturneCarousel artist_carousel {}
         };
       };
     };

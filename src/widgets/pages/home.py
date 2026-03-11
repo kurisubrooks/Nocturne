@@ -1,6 +1,6 @@
 # home.py
 
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, GLib, Gst
 from ...navidrome import get_current_integration
 from ..album import AlbumButton
 from ..artist import ArtistButton
@@ -10,51 +10,40 @@ from ..playlist import PlaylistButton
 class HomePage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneHomePage'
 
-    album_list_el = Gtk.Template.Child()
-    artist_list_el = Gtk.Template.Child()
-    playlist_list_el = Gtk.Template.Child()
+    album_carousel = Gtk.Template.Child()
+    artist_carousel = Gtk.Template.Child()
+    playlist_carousel = Gtk.Template.Child()
 
     def update_all(self):
+        self.album_carousel.set_header(
+            label=_("Albums"),
+            icon_name="music-queue-symbolic"
+        )
         self.update_album_list()
+
+        self.artist_carousel.set_header(
+            label=_("Artists"),
+            icon_name="music-artist-symbolic"
+        )
         self.update_artist_list()
+
+        self.playlist_carousel.set_header(
+            label=_("Playlists"),
+            icon_name="playlist-symbolic"
+        )
         self.update_playlist_list()
 
-    def restore_play_queue(self):
-        integration = navidrome.get_current_integration()
-        current_id, song_list = integration.getPlayQueue()
-        if len(song_list) > 0:
-            GLib.idle_add(self.get_root().queue_page.replace_queue, song_list, current_id)
-            GLib.idle_add(lambda: self.get_root().playing_page.player.set_state(Gst.State.PAUSED) and False)
-
     def update_album_list(self):
-        for i in range(self.album_list_el.get_n_pages()):
-            page = self.album_list_el.get_nth_page(i)
-            if page:
-                self.album_list_el.remove(page)
-
         integration = get_current_integration()
-
-        for album_id in integration.getAlbumList():
-            self.album_list_el.append(AlbumButton(album_id))
+        albums = integration.getAlbumList()
+        GLib.idle_add(self.album_carousel.set_widgets, [AlbumButton(id) for id in albums])
 
     def update_artist_list(self):
-        for i in range(self.artist_list_el.get_n_pages()):
-            page = self.artist_list_el.get_nth_page(i)
-            if page:
-                self.artist_list_el.remove(page)
-
         integration = get_current_integration()
-
-        for artist_id in integration.getArtists():
-            self.artist_list_el.append(ArtistButton(artist_id))
+        artists = integration.getArtists()
+        GLib.idle_add(self.artist_carousel.set_widgets, [ArtistButton(id) for id in artists])
 
     def update_playlist_list(self):
-        for i in range(self.playlist_list_el.get_n_pages()):
-            page = self.playlist_list_el.get_nth_page(i)
-            if page:
-                self.playlist_list_el.remove(page)
-
         integration = get_current_integration()
-
-        for playlist_id in integration.getPlaylists():
-            self.playlist_list_el.append(PlaylistButton(playlist_id))
+        playlists = integration.getPlaylists()
+        GLib.idle_add(self.playlist_carousel.set_widgets, [PlaylistButton(id) for id in playlists])

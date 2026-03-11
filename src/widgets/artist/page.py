@@ -15,10 +15,8 @@ class ArtistPage(Adw.NavigationPage):
     name_el = Gtk.Template.Child()
     biography_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
-    album_label_el = Gtk.Template.Child()
-    album_list_el = Gtk.Template.Child()
-    artist_label_el = Gtk.Template.Child()
-    artist_list_el = Gtk.Template.Child()
+    album_wrapbox = Gtk.Template.Child()
+    artist_carousel = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -36,6 +34,16 @@ class ArtistPage(Adw.NavigationPage):
         integration.connect_to_model(self.id, 'album', self.update_album_list)
         integration.connect_to_model(self.id, 'similarArtist', self.update_artist_list)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+
+        self.artist_carousel.set_header(
+            label=_("Related Artists"),
+            icon_name="music-artist-symbolic"
+        )
+
+        self.album_wrapbox.set_header(
+            label=_("Albums"),
+            icon_name="music-queue-symbolic"
+        )
 
     def update_cover(self, coverArt:str=None):
         def update():
@@ -68,6 +76,17 @@ class ArtistPage(Adw.NavigationPage):
             self.star_el.set_tooltip_text(_('Star'))
 
     def update_album_list(self, album_list:list):
+        albums = [a.get('id') for a in album_list]
+        album_buttons = []
+        for album in albums:
+            button = AlbumButton(album)
+            button.artist_el.set_visible(False)
+            button.set_halign(Gtk.Align.CENTER)
+            button.name_el.remove_css_class('title-3')
+            album_buttons.append(button)
+        self.album_wrapbox.set_widgets(album_buttons)
+
+        return
         for el in list(self.album_list_el):
             self.album_list_el.remove(el)
 
@@ -78,20 +97,11 @@ class ArtistPage(Adw.NavigationPage):
             button.name_el.remove_css_class('title-3')
             self.album_list_el.prepend(button)
 
-        self.album_label_el.set_visible(album_list)
         self.album_list_el.set_visible(album_list)
 
     def update_artist_list(self, artist_list:list):
-        for i in range(self.artist_list_el.get_n_pages()):
-            page = self.artist_list_el.get_nth_page(i)
-            if page:
-                self.artist_list_el.remove(page)
-
-        for artist_dict in artist_list:
-            self.artist_list_el.prepend(ArtistButton(artist_dict.get('id')))
-
-        self.artist_label_el.set_visible(artist_list)
-        self.artist_list_el.set_visible(artist_list)
+        artists = [a.get('id') for a in artist_list]
+        GLib.idle_add(self.artist_carousel.set_widgets, [ArtistButton(id) for id in artists])
 
     # -- Callbacks --
 

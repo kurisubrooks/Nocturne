@@ -25,6 +25,9 @@ blueprints = files(
 
   'ui/song/row.blp',
   'ui/song/queue.blp',
+
+  'ui/containers/carousel.blp',
+  'ui/containers/wrapbox.blp',
 )
 
 blueprints = custom_target('blueprints',
