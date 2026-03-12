@@ -263,28 +263,25 @@ class PlayingControlPage(Adw.NavigationPage):
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
         @media (prefers-color-scheme: dark) {{
-            .dynamic-accent-bg {{
+            .dynamic-accent-bg > * {{
                 background-image: linear-gradient(
                     to bottom right,
                     rgba({','.join([str(c) for c in palette[0]])},0.25),
                     rgba({','.join([str(c) for c in palette[1]])},0.25)
                 );
-                transition: background-image 0.5s ease-in-out;
-                border-top-left-radius: 15px;
-                border-top-right-radius: 15px;
             }}
         }}
         @media (prefers-color-scheme: light) {{
-            .dynamic-accent-bg {{
+            .dynamic-accent-bg > * {{
                 background-image: linear-gradient(
                     to bottom right,
                     rgba({','.join([str(c) for c in palette[0]])},0.40),
                     rgba({','.join([str(c) for c in palette[1]])},0.40)
                 );
-                transition: background-image 0.5s ease-in-out;
-                border-top-left-radius: 15px;
-                border-top-right-radius: 15px;
             }}
+        }}
+        .dynamic-accent-bg {{
+            transition: background-image 0.5s ease-in-out;
         }}
         """
 
