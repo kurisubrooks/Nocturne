@@ -135,6 +135,13 @@ class Song(GObject.Object):
     explicitStatus = GObject.Property(type=str)
     artists = GObject.Property(type=GObject.TYPE_PYOBJECT) # list
     starred = GObject.Property(type=str)
+
+    # --RADIO--
+    isRadio = GObject.Property(type=bool, default=False)
+    streamUrl = GObject.Property(type=str)
+    homePageUrl = GObject.Property(type=str)
+    # ---------
+
     #musicBrainzId = GObject.Property(type=str)
     #isDir = GObject.Property(type=bool, default=False)
     #suffix = GObject.Property(type=str)

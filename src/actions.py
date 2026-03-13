@@ -1,9 +1,10 @@
 # actions.py
 
 from . import navidrome
-import random
+import random, threading
 from datetime import datetime, UTC
 from . import widgets as Widgets
+from gi.repository import Gio, Adw, Gtk
 
 # -- HELPER --
 
@@ -19,6 +20,9 @@ def replace_root_page(window, page_tag:str):
     if page_tag:
         window.replace_root_page(page_tag)
 
+def visit_url(window, url:str):
+    Gio.AppInfo.launch_default_for_uri(url, None)
+
 def toggle_star(window, model_id:str):
     integration = navidrome.get_current_integration()
     if model_id in integration.loaded_models:
@@ -29,6 +33,65 @@ def toggle_star(window, model_id:str):
         else:
             if integration.star(model.id):
                 model.starred = datetime.now(UTC).isoformat(timespec='microseconds').replace('+00:00', 'Z')
+
+# -- RADIO --
+
+def play_radio(window, model_id:str):
+    if model_id in window.queue_page.song_list_el.get_all_ids():
+        integration = navidrome.get_current_integration()
+        integration.loaded_models.get('currentSong').songId = model_id
+    else:
+        window.queue_page.replace_queue([model_id])
+
+def add_radio(window):
+    def response(dialog, task, name_el, stream_el, homepage_el):
+        if dialog.choose_finish(task) == 'save':
+            name = name_el.get_text()
+            stream = stream_el.get_text()
+            homepage = homepage_el.get_text()
+            if name and stream and homepage:
+                integration = navidrome.get_current_integration()
+                result = integration.createInternetRadioStation(
+                    name,
+                    stream,
+                    homepage
+                )
+                if result:
+                    threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
+            #TODO show toast if all good (or bad)
+
+    list_box = Gtk.ListBox(
+        selection_mode=Gtk.SelectionMode.NONE,
+        css_classes=['boxed-list']
+    )
+    name_el = Adw.EntryRow(
+        title=_("Name")
+    )
+    list_box.append(name_el)
+    stream_el = Adw.EntryRow(
+        title=_("Stream Url")
+    )
+    list_box.append(stream_el)
+    homepage_el = Adw.EntryRow(
+        title=_("Homepage Url")
+    )
+    list_box.append(homepage_el)
+
+    dialog = Adw.AlertDialog(
+        heading=_("Add Radio Station"),
+        extra_child=list_box
+    )
+    dialog.add_response(
+        "cancel",
+        _("Cancel")
+    )
+    dialog.add_response(
+        "save",
+        _("Save")
+    )
+    dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
+    dialog.choose(window, None, response, name_el, stream_el, homepage_el)
+
 
 # -- SONG --
 

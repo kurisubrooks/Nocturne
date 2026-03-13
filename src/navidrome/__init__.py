@@ -1,9 +1,10 @@
 # __init__.py
 
 
-from gi.repository import Gtk, GLib, GObject, Gdk
+from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
-import requests, random, threading
+import requests, random, threading, favicon, io
+from PIL import Image
 
 class Navidrome(GObject.Object):
     __gtype_name__ = 'NocturneNavidrome'
@@ -66,15 +67,64 @@ class Navidrome(GObject.Object):
 
     def get_stream_url(self, song_id:str) -> str:
         # streams are handled by gst not requests
+        model = self.loaded_models[song_id]
+        if model.isRadio:
+            return model.streamUrl
         params = self.get_base_params()
         params['id'] = song_id
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         return '{}/rest/stream?{}'.format(self.base_url.strip('/'), query_string)
 
+    def getRadioCoverArtWithBytes(self, id:str=None, size:int=480) -> tuple:
+        # returns bytes, Gdk.Paintable
+        if id:
+            model = self.loaded_models[id]
+            homepage_url = ""
+            if model:
+                if model.gdkPaintable:
+                    return model.gdkPaintableBytes, model.gdkPaintable
+                if model.homePageUrl:
+                    icons = favicon.get(model.homePageUrl)
+                    if len(icons) > 0:
+                        try:
+                            response = requests.get(icons[0].url, timeout=5)
+                            response.raise_for_status()
+                            response_bytes = response.content
+                            stream = io.BytesIO(response_bytes)
+                            png_bytes = b''
+                            with Image.open(stream) as img:
+                                img = img.convert("RGBA")
+                                png_buffer = io.BytesIO()
+                                img.save(png_buffer, format="PNG")
+                                png_bytes = png_buffer.getvalue()
+                            texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(png_bytes))
+                            model.gdkPaintableBytes = png_bytes
+                            model.gdkPaintable = texture
+                            return model.gdkPaintableBytes, model.gdkPaintable
+                        except Exception as e:
+                            pass
+
+        theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        return b'', theme.lookup_icon(
+            'sound-symbolic',
+            None,
+            size,
+            1,
+            Gtk.TextDirection.NONE,
+            0
+        )
+
+    def getRadioCoverArt(self, id:str=None, size:int=480) -> Gdk.Paintable:
+        # Returns a paintable at the specified size, should be used directly in GTK without modifications
+        # It also returns a pretty icon as a fallback if it fails for some reason
+        return self.getRadioCoverArtWithBytes(id, size)[1]
+
     def getCoverArtWithBytes(self, id:str=None, size:int=480) -> tuple:
         # returns bytes, Gdk.Paintable
         if id:
             model = self.loaded_models[id]
+            if isinstance(model, models.Song) and model.isRadio:
+                return self.getRadioCoverArtWithBytes(id, size)
             coverArtId = ""
             if model:
                 if model.gdkPaintable:
@@ -346,6 +396,30 @@ class Navidrome(GObject.Object):
             'album': [m.get('id') for m in search_results.get('album', [])],
             'song': [m.get('id') for m in search_results.get('song', [])],
         }
+
+    def getInternetRadioStations(self) -> list:
+        response = self.make_request('getInternetRadioStations')
+        radios = response.get('internetRadioStations', {}).get('internetRadioStation', [])
+        for radio in radios:
+            if radio.get('id') not in self.loaded_models:
+                self.loaded_models[radio.get('id')] = models.Song(
+                    id=radio.get('id'),
+                    title=radio.get('name'),
+                    streamUrl=radio.get('streamUrl'),
+                    homePageUrl=radio.get('homePageUrl'),
+                    duration=-1,
+                    isRadio=True
+                )
+        return [radio.get('id') for radio in radios]
+
+    def createInternetRadioStation(self, name:str, streamUrl:str, homepageUrl:str) -> bool:
+        # returns true if ok
+        response = self.make_request('createInternetRadioStation', {
+            'name': name,
+            'streamUrl': streamUrl,
+            'homepageUrl': homepageUrl
+        })
+        return response.get('status') == 'ok'
 
 integration = None
 

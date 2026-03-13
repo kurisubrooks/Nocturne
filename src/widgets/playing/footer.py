@@ -3,6 +3,7 @@
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject
 from ...navidrome import get_current_integration
 import threading
+from urllib.parse import urlparse
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playing/footer.ui')
 class PlayingFooter(Gtk.Overlay):
@@ -25,7 +26,10 @@ class PlayingFooter(Gtk.Overlay):
         song = integration.loaded_models.get(song_id)
         if song:
             self.title_el.set_label(song.title)
-            self.artist_el.set_label(song.artists[0].get('name'))
+            if len(song.artists) > 0:
+                self.artist_el.set_label(song.artists[0].get('name'))
+            elif song.isRadio:
+                self.artist_el.set_label(urlparse(song.homePageUrl).netloc.capitalize())
             threading.Thread(target=self.update_cover_art).start()
 
     def position_changed(self, positionSeconds:float):

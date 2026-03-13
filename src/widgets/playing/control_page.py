@@ -6,6 +6,7 @@ import threading, random, io, colorsys
 from datetime import datetime
 from PIL import Image
 from colorthief import ColorThief
+from urllib.parse import urlparse
 
 Gst.init(None)
 
@@ -15,6 +16,7 @@ class PlayingControlPage(Adw.NavigationPage):
 
     cover_el = Gtk.Template.Child()
     title_el = Gtk.Template.Child()
+    radio_homepage_el = Gtk.Template.Child()
     artist_el = Gtk.Template.Child()
     album_el = Gtk.Template.Child()
     progress_el = Gtk.Template.Child()
@@ -193,6 +195,19 @@ class PlayingControlPage(Adw.NavigationPage):
         else:
             integration.loaded_models['currentSong'].songId = None
 
+    def set_dynamic_title(self, title:str):
+        # called by on_player_message (useful for radios)
+        if title == self.title_el.get_label():
+            return
+        integration = get_current_integration()
+        model = integration.loaded_models.get(integration.loaded_models.get('currentSong'))
+        if model and model.isRadio:
+            self.title_el.set_label(title or model.title)
+            self.title_el.set_tooltip_text(title or model.title)
+            root = self.get_root()
+            if root:
+                root.footer.title_el.set_label(title or model.title)
+
     def on_player_message(self, bus, message):
         if message.type == Gst.MessageType.STATE_CHANGED:
             if message.src == self.player:
@@ -205,6 +220,14 @@ class PlayingControlPage(Adw.NavigationPage):
         elif message.type == Gst.MessageType.ERROR:
             err, debug = message.parse_error()
             print("Error: {}".format(err.message))
+
+        elif message.type == Gst.MessageType.TAG:
+            taglist = message.parse_tag()
+            for i in range(taglist.n_tags()):
+                name = taglist.nth_tag_name(i)
+                value = taglist.get_value_index(name, 0)
+                if name == 'title' and value:
+                    self.set_dynamic_title(value)
 
     def change_bottom_sheet_state(self, playing:bool):
         bottom_sheet = self.get_ancestor(Adw.BottomSheet)
@@ -222,6 +245,13 @@ class PlayingControlPage(Adw.NavigationPage):
             self.title_el.set_label(model.title)
             self.title_el.set_tooltip_text(model.title)
 
+            # HomePage (radio)
+            if model.isRadio:
+                self.radio_homepage_el.get_child().set_label(urlparse(model.homePageUrl).netloc.capitalize())
+                self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.homePageUrl))
+                self.radio_homepage_el.set_tooltip_text(model.homePageUrl)
+            self.radio_homepage_el.set_visible(model.isRadio and model.homePageUrl)
+
             # Artist
             if len(model.artists) > 0:
                 self.artist_el.get_child().set_label(model.artists[0].get('name'))
@@ -233,10 +263,15 @@ class PlayingControlPage(Adw.NavigationPage):
             self.album_el.get_child().set_label(model.album)
             self.album_el.set_action_target_value(GLib.Variant.new_string(model.albumId))
             self.album_el.set_tooltip_text(model.album)
+            self.album_el.set_visible(model.album)
 
             # Progressbar
             self.progress_el.get_adjustment().set_upper(model.duration)
+            self.progress_el.set_visible(not model.isRadio)
             integration.loaded_models.get('currentSong').positionSeconds = 0
+
+            # Star
+            self.star_el.set_visible(not model.isRadio)
 
             # Cover
             threading.Thread(target=self.update_cover_art).start()

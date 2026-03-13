@@ -56,6 +56,21 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
           line-spacing: 5;
           justify: fill;
 
+          Gtk.Button radio_homepage_el {
+            halign: center;
+            hexpand: true;
+            action-name: "app.visit_url";
+            action-target: "''";
+            child: Adw.ButtonContent {
+              icon-name: "external-link-symbolic";
+            };
+            styles [
+              "flat",
+              "dimmed",
+              "p0"
+            ]
+          }
+
           Gtk.Button artist_el {
             halign: center;
             hexpand: true;

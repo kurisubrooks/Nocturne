@@ -77,6 +77,14 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
   }
 
   Gtk.StackPage {
+    name: "radio";
+    child: Adw.StatusPage {
+      title: _("Radio");
+      icon-name: "sound-symbolic";
+    };
+  }
+
+  Gtk.StackPage {
     name: "not-found-locally";
     child: Adw.StatusPage {
       title: _("Not Downloaded");

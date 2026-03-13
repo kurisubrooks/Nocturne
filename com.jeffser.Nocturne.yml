@@ -16,7 +16,7 @@ cleanup:
   - /lib/pkgconfig
   - /man
   - /share/doc
-  - /share/gtk-doc
+  - /share/gtk-docw
   - /share/man
   - /share/pkgconfig
   - '*.la'
@@ -55,6 +55,36 @@ modules:
       - type: file
         url: https://files.pythonhosted.org/packages/af/cb/bb5c01fcd2a69335b86c22142b2bccfc3464087efb7fd382eee5ffc7fdf7/pillow-11.2.1.tar.gz
         sha256: a64dd61998416367b7ef979b73d3a85853ba9bec4c2925f74e588879a58716b6
+  - name: python3-favicon
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "favicon" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
+        sha256: 0918bfe44902e6ad8d57732ba310582e98da931428d231a5ecb9e7c703a735bb
+      - type: file
+        url: https://files.pythonhosted.org/packages/9a/3c/c17fb3ca2d9c3acff52e30b309f538586f9f5b9c9cf454f3845fc9af4881/certifi-2026.2.25-py3-none-any.whl
+        sha256: 027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa
+      - type: file
+        url: https://files.pythonhosted.org/packages/1d/35/02daf95b9cd686320bb622eb148792655c9412dbb9b67abb5694e5910a24/charset_normalizer-3.4.5.tar.gz
+        sha256: 95adae7b6c42a6c5b5b559b1a99149f090a57128155daeea91732c8d970d8644
+      - type: file
+        url: https://files.pythonhosted.org/packages/93/4c/8baf94bb789972634d933152d27529f2bad4e5d2397b8da9c30f6f5342ce/favicon-0.7.0-py2.py3-none-any.whl
+        sha256: 7fec0617c73dcb8521ea788e1d38cdc7226c7cb8e28c81e11625d85fa1534880
+      - type: file
+        url: https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl
+        sha256: 771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea
+      - type: file
+        url: https://files.pythonhosted.org/packages/46/2c/1462b1d0a634697ae9e55b3cecdcb64788e8b7d63f54d923fcd0bb140aed/soupsieve-2.8.3-py3-none-any.whl
+        sha256: ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95
+      - type: file
+        url: https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl
+        sha256: f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
+      - type: file
+        url: https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl
+        sha256: bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4
   - name: nocturne
     builddir: true
     buildsystem: meson

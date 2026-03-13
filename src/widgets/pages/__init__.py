@@ -7,3 +7,4 @@ from .playlists import PlaylistsPage
 from .songs import SongsPage
 from .albums import AlbumsPage
 from .albums_all import AlbumsAllPage
+from .radios import RadiosPage

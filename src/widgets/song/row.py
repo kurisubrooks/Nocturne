@@ -5,6 +5,7 @@ from .queue import SongQueue
 from ...navidrome import get_current_integration, models
 import threading, uuid, cairo
 from datetime import timedelta, datetime
+from urllib.parse import urlparse
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/song/row.ui')
 class SongRow(Adw.ActionRow):
@@ -17,8 +18,10 @@ class SongRow(Adw.ActionRow):
     suffixes_stack_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
     check_el = Gtk.Template.Child()
+    select_el = Gtk.Template.Child()
     play_next_el = Gtk.Template.Child()
     play_later_el = Gtk.Template.Child()
+    add_to_playlist_el = Gtk.Template.Child()
     remove_el = Gtk.Template.Child()
 
     def __init__(self, id:str, draggable:bool=False, removable:bool=False):
@@ -39,6 +42,8 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'duration', self.update_duration)
         integration.connect_to_model(self.id, 'starred', self.update_starred)
+        integration.connect_to_model(self.id, 'homePageUrl', self.update_homepage) # for radios
+        integration.connect_to_model(self.id, 'isRadio', self.update_isRadio) # for radios
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
         self.play_next_el.set_visible(not self.draggable)
@@ -50,8 +55,11 @@ class SongRow(Adw.ActionRow):
         self.title_el.set_tooltip_text(title)
 
     def update_duration(self, duration:int):
-        self.duration_el.set_label(str(timedelta(seconds=duration)))
-        self.duration_el.set_visible(duration)
+        if duration == -1:
+            self.duration_el.set_label(_("Radio"))
+        else:
+            self.duration_el.set_label(str(timedelta(seconds=duration)))
+        self.duration_el.set_visible(duration != 0)
 
     def update_artists(self, artists:list):
         if len(artists) == 1:
@@ -66,7 +74,8 @@ class SongRow(Adw.ActionRow):
                 css_classes = ['p0', 'flat'],
                 tooltip_text=artists[0].get('name')
             )
-        else:
+            self.artist_container_el.set_child(button)
+        elif len(artists) > 1:
             menu = Gio.Menu()
             for artist in artists:
                 item = Gio.MenuItem.new(
@@ -88,8 +97,7 @@ class SongRow(Adw.ActionRow):
                 menu_model = menu,
                 tooltip_text=_("Multiple Artists")
             )
-
-        self.artist_container_el.set_child(button)
+            self.artist_container_el.set_child(button)
 
     def update_starred(self, starred:str):
         if starred:
@@ -101,6 +109,27 @@ class SongRow(Adw.ActionRow):
             self.star_el.remove_css_class('accent')
             self.star_el.set_icon_name('non-starred-symbolic')
             self.star_el.set_tooltip_text(_('Star'))
+
+    def update_homepage(self, homepage:str):
+        if homepage:
+            button = Gtk.Button(
+                action_name = 'app.visit_url',
+                action_target = GLib.Variant.new_string(homepage),
+                child = Gtk.Label(
+                    ellipsize=Pango.EllipsizeMode.END,
+                    label=urlparse(homepage).netloc.capitalize(),
+                    css_classes=['subtitle']
+                ),
+                css_classes = ['p0', 'flat'],
+                tooltip_text=homepage
+            )
+            self.artist_container_el.set_child(button)
+
+    def update_isRadio(self, isRadio:bool):
+        self.star_el.set_visible(not isRadio)
+        self.check_el.set_visible(not isRadio)
+        self.select_el.set_visible(not isRadio)
+        self.add_to_playlist_el.set_visible(not isRadio)
 
     def current_song_changed(self, songId:str):
         self.set_activatable(songId != self.id)

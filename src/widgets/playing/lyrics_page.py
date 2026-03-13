@@ -46,14 +46,17 @@ class PlayingLyricsPage(Gtk.Stack):
 
     def get_lyrics(self, song_id:str, download:bool) -> dict:
         # returns these keys:
-        # type (instrumental, lrc, plain, not-found, not-found-locally)
-        # content (none (instrumental/not-found/not-found-locally), list (lrc), str (plain))
+        # type (instrumental, lrc, plain, not-found, not-found-locally, radio)
+        # content (none (instrumental/not-found/not-found-locally/radio), list (lrc), str (plain))
 
         integration = get_current_integration()
         model = integration.loaded_models.get(song_id)
 
         if not model:
             return {'type': 'not-found', 'content': None}
+
+        if model.isRadio:
+            return {'type': 'radio', 'content': None}
 
         lyrics_dir = os.path.join(DATA_DIR, 'lyrics')
         os.makedirs(lyrics_dir, exist_ok=True)
