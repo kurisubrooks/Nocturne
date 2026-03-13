@@ -63,6 +63,8 @@ class NocturneWindow(Adw.ApplicationWindow):
     def replace_root_page(self, page_tag:str, page_type:str=None):
         page = self.main_navigationview.find_page(page_tag)
         if page:
+            self.main_bottom_sheet.set_open(False)
+            self.main_split_view.set_show_content(True)
             if page_type:
                 page.set_property('page_type', page_type)
             threading.Thread(target=page.reload).start()
