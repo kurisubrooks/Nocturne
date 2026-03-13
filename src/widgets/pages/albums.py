@@ -1,0 +1,29 @@
+# albums.py
+
+from gi.repository import Gtk, Adw, GLib, GObject, Gio
+from ...navidrome import get_current_integration, models
+from ..album import AlbumButton
+
+@Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/albums.ui')
+class AlbumsPage(Adw.NavigationPage):
+    __gtype_name__ = 'NocturneAlbumsPage'
+
+    list_el = Gtk.Template.Child()
+    page_type = GObject.Property(type=str)
+
+    def reload(self):
+        # call in different thread
+        GLib.idle_add(self.list_el.header_button.set_visible, False)
+        integration = get_current_integration()
+
+        albums = integration.getAlbumList(
+            list_type=self.page_type,
+            size=20
+        )
+        self.list_el.set_widgets([AlbumButton(id) for id in albums])
+
+        return
+        playlists = integration.getPlaylists()
+        self.list_el.header_button.set_visible(False)
+        self.list_el.set_widgets([PlaylistButton(id) for id in playlists])
+

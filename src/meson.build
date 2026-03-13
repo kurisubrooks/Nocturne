@@ -16,6 +16,7 @@ blueprints = files(
   'ui/pages/artists.blp',
   'ui/pages/playlists.blp',
   'ui/pages/songs.blp',
+  'ui/pages/albums.blp',
   'ui/pages/albums_all.blp',
 
   'ui/album/button.blp',

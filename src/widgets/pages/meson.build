@@ -7,6 +7,7 @@ widgets = [
   'artists.py',
   'playlists.py',
   'songs.py',
+  'albums.py',
   'albums_all.py',
 ]
 
