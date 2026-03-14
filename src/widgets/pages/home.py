@@ -33,7 +33,7 @@ class HomePage(Adw.NavigationPage):
         self.album_carousel.set_header(
             label=_("Albums"),
             icon_name="music-queue-symbolic",
-            page_tag="albums"
+            page_tag="albums-all"
         )
         self.update_album_list()
 
