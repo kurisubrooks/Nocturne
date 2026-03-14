@@ -6,11 +6,11 @@ def get_context_buttons_list(options:dict, model_id:str, cb_handler:callable=Non
     if cb_handler is None:
         cb_handler = lambda btn, callback: callback() if callback else None
     buttons = []
-    for name, data in options.items():
+    for data in options.values():
         btn = Gtk.Button(
             css_classes=data.get('css', []),
             child=Adw.ButtonContent(
-                label=name,
+                label=data.get('name'),
                 icon_name=data.get('icon-name'),
                 halign=Gtk.Align.START
             )

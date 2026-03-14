@@ -5,17 +5,31 @@ from ...navidrome import get_current_integration
 from ..album import AlbumButton
 from ..artist import ArtistButton
 from ..playlist import PlaylistButton
+from ..song import SongSmallRow
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/home.ui')
 class HomePage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneHomePage'
 
+    song_wrapbox = Gtk.Template.Child()
     album_carousel = Gtk.Template.Child()
     artist_carousel = Gtk.Template.Child()
     playlist_carousel = Gtk.Template.Child()
 
     def reload(self):
         # call in different thread
+        self.song_wrapbox.set_header(
+            label=_("Songs"),
+            icon_name="music-note-symbolic",
+            page_tag="songs"
+        )
+        self.song_wrapbox.list_el.set_margin_start(10)
+        self.song_wrapbox.list_el.set_margin_end(10)
+        self.song_wrapbox.list_el.set_justify(Adw.JustifyMode.FILL)
+        self.song_wrapbox.list_el.set_child_spacing(5)
+        self.song_wrapbox.list_el.set_line_spacing(5)
+        self.update_song_list()
+
         self.album_carousel.set_header(
             label=_("Albums"),
             icon_name="music-queue-symbolic",
@@ -36,6 +50,11 @@ class HomePage(Adw.NavigationPage):
             page_tag="playlists"
         )
         self.update_playlist_list()
+
+    def update_song_list(self):
+        integration = get_current_integration()
+        songs = integration.getRandomSongs(12)
+        GLib.idle_add(self.song_wrapbox.set_widgets, [SongSmallRow(id) for id in songs])
 
     def update_album_list(self):
         integration = get_current_integration()

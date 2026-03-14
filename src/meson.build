@@ -34,6 +34,7 @@ blueprints = files(
 
   'ui/song/row.blp',
   'ui/song/queue.blp',
+  'ui/song/small_row.blp',
 
   'ui/containers/carousel.blp',
   'ui/containers/wrapbox.blp',

@@ -1,0 +1,63 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneSongSmallRow: Gtk.Button {
+  Gtk.GestureClick {
+    button: 3;
+    released => $show_popover();
+  }
+  Gtk.GestureLongPress {
+    pressed => $show_popover();
+  }
+  styles [
+    "card",
+    "p0"
+  ]
+  action-name: "app.play_song";
+
+  child: Gtk.Box {
+    orientation: horizontal;
+    spacing: 5;
+
+    Gtk.Image cover_el {
+      styles [
+        "card"
+      ]
+      pixel-size: 48;
+      height-request: 48;
+      width-request: 48;
+      margin-top: 5;
+      margin-bottom: 5;
+      overflow: hidden;
+      valign: center;
+      halign: center;
+      paintable: Adw.SpinnerPaintable {
+        widget: cover_el;
+      };
+    }
+
+    Gtk.Box {
+      orientation: vertical;
+      valign: center;
+
+      Gtk.Label title_el {
+        styles [
+          "heading"
+        ]
+        wrap: true;
+        wrap-mode: word_char;
+        xalign: 0;
+      }
+
+      Gtk.Label subtitle_el {
+        styles [
+          "caption",
+          "dimmed"
+        ]
+        wrap: true;
+        wrap-mode: word_char;
+        xalign: 0;
+      }
+    }
+  };
+}

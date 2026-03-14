@@ -95,63 +95,114 @@ SIDEBAR_MENU = [
 ]
 
 CONTEXT_ALBUM = {
-    _("Play"): {
+    "play": {
+        "name": _("Play"),
         "icon-name": "media-playback-start-symbolic",
         "action-name": "app.play_album"
     },
-    _("Shuffle"): {
+    "shuffle": {
+        "name": _("Shuffle"),
         "icon-name": "playlist-shuffle-symbolic",
         "action-name": "app.play_album_shuffle"
     },
-    _("Play Next"): {
+    "play-next": {
+        "name": _("Play Next"),
         "icon-name": "list-high-priority-symbolic",
         "action-name": "app.play_album_next"
     },
-    _("Play Later"): {
+    "play-later": {
+        "name": _("Play Later"),
         "icon-name": "list-low-priority-symbolic",
         "action-name": "app.play_album_later"
     },
-    _("Add To Playlist"): {
+    "add-to-playlist": {
+        "name": _("Add To Playlist"),
         "icon-name": "playlist-symbolic",
         "action-name": "app.add_album_to_playlist"
     }
 }
 
 CONTEXT_ARTIST = {
-    _("Shuffle"): {
+    "shuffle": {
+        "name": _("Shuffle"),
         "icon-name": "playlist-shuffle-symbolic",
         "action-name": "app.play_shuffle_artist"
     },
-    _("Radio"): {
+    "radio": {
+        "name": _("Radio"),
         "icon-name": "sound-symbolic",
         "action-name": "app.play_radio_artist"
     }
 }
 
 CONTEXT_PLAYLIST = {
-    _("Play"): {
+    "play": {
+        "name": _("Play"),
         "icon-name": "media-playback-start-symbolic",
         "action-name": "app.play_playlist"
     },
-    _("Shuffle"): {
+    "shuffle": {
+        "name": _("Shuffle"),
         "icon-name": "media-playlist-shuffle-symbolic",
         "action-name": "app.play_playlist_shuffle"
     },
-    _("Play Next"): {
+    "play-next": {
+        "name": _("Play Next"),
         "icon-name": "list-high-priority-symbolic",
         "action-name": "app.play_playlist_next"
     },
-    _("Play Later"): {
+    "play-later": {
+        "name": _("Play Later"),
         "icon-name": "list-low-priority-symbolic",
         "action-name": "app.play_playlist_later"
     },
-    _("Edit"): {
+    "edit": {
+        "name": _("Edit"),
         "icon-name": "document-edit-symbolic",
         "action-name": "app.update_playlist"
     },
-    _("Delete"): {
+    "delete": {
+        "name": _("Delete"),
         "css": ["error"],
         "icon-name": "user-trash-symbolic",
         "action-name": "app.delete_playlist"
+    }
+}
+
+CONTEXT_SONG = {
+    "select": {
+        "name": _("Select"),
+        "icon-name": "object-select-symbolic"
+    },
+    "play-next": {
+        "name": _("Play Next"),
+        "icon-name": "list-high-priority-symbolic",
+        "action-name": "app.play_song_next"
+    },
+    "play-later": {
+        "name": _("Play Later"),
+        "icon-name": "list-low-priority-symbolic",
+        "action-name": "app.play_song_later"
+    },
+    "edit": {
+        "name": _("Edit"),
+        "icon-name": "document-edit-symbolic",
+        "action-name": "app.update_radio"
+    },
+    "delete": {
+        "name": _("Delete"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic",
+        "action-name": "app.delete_radio"
+    },
+    "add-to-playlist": {
+        "name": _("Add To Playlist"),
+        "icon-name": "playlist-symbolic",
+        "action-name": "app.add_song_to_playlist"
+    },
+    "remove": {
+        "name": _("Remove"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic"
     }
 }

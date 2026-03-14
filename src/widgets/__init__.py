@@ -5,5 +5,5 @@ from .pages import HomePage, LoginPage, ArtistsPage, PlaylistsPage, SongsPage, A
 from .album import AlbumButton, AlbumPage, AlbumRow
 from .artist import ArtistButton, ArtistPage, ArtistRow
 from .playlist import PlaylistButton, PlaylistPage, PlaylistRow
-from .song import SongRow, SongQueue
+from .song import SongRow, SongQueue, SongSmallRow
 from .containers import Carousel, Wrapbox

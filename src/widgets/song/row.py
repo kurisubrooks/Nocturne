@@ -2,8 +2,9 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango, Gio
 from .queue import SongQueue
+from ...navidrome import get_current_integration
 from ..containers import ContextContainer
-from ...navidrome import get_current_integration, models
+from ...constants import CONTEXT_SONG
 import threading, uuid, cairo
 from datetime import timedelta, datetime
 from urllib.parse import urlparse
@@ -42,44 +43,22 @@ class SongRow(Adw.ActionRow):
     def generate_context_menu(self) -> ContextContainer:
         integration = get_current_integration()
         model = integration.loaded_models.get(self.id)
-        context_dict = {
-            _("Select"): {
-                "icon-name": "object-select-symbolic",
-                "connection": self.select_clicked
-            }
-        }
+        context_dict = CONTEXT_SONG.copy()
+        context_dict["select"]["connection"] = self.select_clicked
         if not self.draggable:
-            context_dict[_('Play Next')] = {
-                "icon-name": "list-high-priority-symbolic",
-                "action-name": "app.play_song_next",
-                "sensitive": integration.loaded_models.get('currentSong').songId != self.id
-            }
-            context_dict[_('Play Later')] = {
-                "icon-name": "list-low-priority-symbolic",
-                "action-name": "app.play_song_later",
-                "sensitive": integration.loaded_models.get('currentSong').songId != self.id
-            }
-        if model and model.isRadio:
-            context_dict[_('Edit')] = {
-                "icon-name": "document-edit-symbolic",
-                "action-name": "app.update_radio"
-            }
-            context_dict[_('Delete')] = {
-                "css": ["error"],
-                "icon-name": "user-trash-symbolic",
-                "action-name": "app.delete_radio"
-            }
-        if not model or not model.isRadio:
-            context_dict[_('Add To Playlist')] = {
-                "icon-name": "playlist-symbolic",
-                "action-name": "app.add_song_to_playlist"
-            }
+            context_dict["play-next"]["sensitive"] = integration.loaded_models.get('currentSong').songId != self.id
+            context_dict["play-later"]["sensitive"] = integration.loaded_models.get('currentSong').songId != self.id
+
+        if not model or not (model.isRadio and not self.draggable):
+            del context_dict["edit"]
+            del context_dict["delete"]
+
+        if not model or model.isRadio:
+            del context_dict["add-to-playlist"]
         if self.removable:
-            context_dict[_("Remove")] = {
-                "css": ["error"],
-                "icon-name": "user-trash-symbolic",
-                "connection": self.remove_selected
-            }
+            context_dict["remove"]["connection"] = self.remove_selected
+        else:
+            del context_dict["remove"]
         return ContextContainer(context_dict, self.id)
 
     def update_title(self, title:str):
