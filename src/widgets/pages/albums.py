@@ -23,5 +23,12 @@ class AlbumsPage(Adw.NavigationPage):
             size=20
         )
         self.list_el.set_widgets([AlbumButton(id) for id in albums])
-        GLib.idle_add(self.main_stack.set_visible_child_name, 'content')
+        GLib.idle_add(self.update_visibility)
+
+    def update_visibility(self):
+        for row in list(self.list_el.list_el):
+            if row.get_visible():
+                self.main_stack.set_visible_child_name('content')
+                return
+        self.main_stack.set_visible_child_name('no-content')
 

@@ -10,6 +10,7 @@ class AlbumsAllPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneAlbumsAllPage'
 
     search_entry = Gtk.Template.Child()
+    main_stack = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
     end_stack = Gtk.Template.Child()
     offset = 0
@@ -23,6 +24,7 @@ class AlbumsAllPage(Adw.NavigationPage):
         if self.searching:
             return
         self.searching = True
+        GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
         query = self.search_entry.get_text()
         integration = get_current_integration()
         search_results = integration.search(
@@ -40,6 +42,7 @@ class AlbumsAllPage(Adw.NavigationPage):
         self.end_stack.set_visible_child_name('end' if max(self.offset, 30) > len([row for row in list(self.list_el) if row.get_visible()]) else 'loading')
         self.offset += 30
         self.searching = False
+        GLib.idle_add(self.update_visibility)
 
     @Gtk.Template.Callback()
     def on_search(self, search_entry):
@@ -52,3 +55,10 @@ class AlbumsAllPage(Adw.NavigationPage):
     def scroll_edge_reached(self, scrolledwindow, pos):
         if pos == Gtk.PositionType.BOTTOM:
             threading.Thread(target=self.search).start()
+
+    def update_visibility(self):
+        for row in list(self.list_el):
+            if row.get_visible():
+                self.main_stack.set_visible_child_name('content')
+                return
+        self.main_stack.set_visible_child_name('no-content')

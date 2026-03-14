@@ -33,6 +33,13 @@ template $NocturneAlbumsPage: Adw.NavigationPage {
           };
         };
       }
+      Gtk.StackPage {
+        name: "no-content";
+        child: Adw.StatusPage {
+          icon-name: "sad-computer-symbolic";
+          title: _("No Albums Found");
+        };
+      }
     };
   };
 }

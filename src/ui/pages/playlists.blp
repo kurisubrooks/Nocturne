@@ -24,30 +24,47 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
       };
     }
 
-    content: Gtk.ScrolledWindow {
-      propagate-natural-width: true;
-      propagate-natural-height: true;
+    content: Gtk.Stack main_stack {
+      transition-type: crossfade;
+      Gtk.StackPage {
+        name: "loading";
+        child: Adw.Spinner {};
+      }
+      Gtk.StackPage {
+        name: "content";
+        child: Gtk.ScrolledWindow {
+          propagate-natural-width: true;
+          propagate-natural-height: true;
 
-      child: Adw.Clamp {
-        maximum-size: 2000;
-        tightening-threshold: 800;
-        Gtk.Box {
-          orientation: vertical;
-          spacing: 5;
+          child: Adw.Clamp {
+            maximum-size: 2000;
+            tightening-threshold: 800;
+            Gtk.Box {
+              orientation: vertical;
+              spacing: 5;
 
-          Gtk.ListBox list_el {
-            styles [
-              "boxed-list"
-            ]
-            margin-top: 10;
-            margin-bottom: 10;
-            margin-start: 10;
-            margin-end: 10;
-            selection-mode: none;
-            valign: start;
-          }
-        }
-      };
+              Gtk.ListBox list_el {
+                styles [
+                  "boxed-list"
+                ]
+                margin-top: 10;
+                margin-bottom: 10;
+                margin-start: 10;
+                margin-end: 10;
+                selection-mode: none;
+                valign: start;
+              }
+            }
+          };
+        };
+      }
+      Gtk.StackPage {
+        name: "no-content";
+        child: Adw.StatusPage {
+          icon-name: "sad-computer-symbolic";
+          title: _("No Playlists Found");
+        };
+      }
     };
   };
 }

@@ -14,49 +14,66 @@ template $NocturneSongsPage: Adw.NavigationPage {
       };
     }
 
-    content: Gtk.ScrolledWindow {
-      propagate-natural-width: true;
-      propagate-natural-height: true;
-      edge-reached => $scroll_edge_reached();
+    content: Gtk.Stack main_stack {
+      transition-type: crossfade;
+      Gtk.StackPage {
+        name: "loading";
+        child: Adw.Spinner {};
+      }
+      Gtk.StackPage {
+        name: "content";
+        child: Gtk.ScrolledWindow {
+          propagate-natural-width: true;
+          propagate-natural-height: true;
+          edge-reached => $scroll_edge_reached();
 
-      child: Adw.Clamp {
-        maximum-size: 2000;
-        tightening-threshold: 800;
-        Gtk.Box {
-          orientation: vertical;
-          spacing: 5;
+          child: Adw.Clamp {
+            maximum-size: 2000;
+            tightening-threshold: 800;
+            Gtk.Box {
+              orientation: vertical;
+              spacing: 5;
 
-          $NocturneSongQueue list_el {
-            styles [
-              "boxed-list"
-            ]
-            margin-top: 10;
-            margin-bottom: 10;
-            margin-start: 10;
-            margin-end: 10;
-            valign: start;
-          }
-          Gtk.Stack end_stack {
-            Gtk.StackPage {
-              name: "loading";
-              child: Adw.Spinner {};
-            }
-            Gtk.StackPage {
-              name: "end";
-              child: Gtk.Label {
+              $NocturneSongQueue list_el {
                 styles [
-                  "dimmed"
+                  "boxed-list"
                 ]
-                label: _("Reached End of List");
-                halign: center;
-                wrap: true;
-                wrap-mode: word_char;
-                justify: center;
-              };
+                margin-top: 10;
+                margin-bottom: 10;
+                margin-start: 10;
+                margin-end: 10;
+                valign: start;
+              }
+              Gtk.Stack end_stack {
+                Gtk.StackPage {
+                  name: "loading";
+                  child: Adw.Spinner {};
+                }
+                Gtk.StackPage {
+                  name: "end";
+                  child: Gtk.Label {
+                    styles [
+                      "dimmed"
+                    ]
+                    label: _("Reached End of List");
+                    halign: center;
+                    wrap: true;
+                    wrap-mode: word_char;
+                    justify: center;
+                  };
+                }
+              }
             }
-          }
-        }
-      };
+          };
+        };
+      }
+      Gtk.StackPage {
+        name: "no-content";
+        child: Adw.StatusPage {
+          icon-name: "sad-computer-symbolic";
+          title: _("No Songs Found");
+        };
+      }
     };
   };
 }
