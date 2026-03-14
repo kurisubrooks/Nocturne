@@ -17,24 +17,23 @@ def __show_page(window, page):
 def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, icon_name:str=None):
     integration = navidrome.get_current_integration()
     custom_widget = Adw.ActionRow(
-        title=integration.loaded_models.get(model_id).get_property(title_property),
+        title=integration.loaded_models.get(model_id).get_property(title_property) if model_id else title_property,
         subtitle=subtitle
     )
-    album_art = Gtk.Image(
-        css_classes=['card'],
-        pixel_size=48,
-        height_request=48,
-        width_request=48,
-        overflow=Gtk.Overflow.HIDDEN,
-        halign=Gtk.Align.CENTER,
-        valign=Gtk.Align.CENTER
-    )
     if icon_name:
-        album_art.set_from_icon_name(icon_name)
+        custom_widget.set_icon_name(icon_name)
     else:
-        album_art.set_from_paintable(integration.getCoverArt(model_id))
-
-    custom_widget.add_prefix(album_art)
+        album_art = Gtk.Image(
+            css_classes=['card'],
+            pixel_size=48,
+            height_request=48,
+            width_request=48,
+            overflow=Gtk.Overflow.HIDDEN,
+            halign=Gtk.Align.CENTER,
+            valign=Gtk.Align.CENTER,
+            paintable=integration.getCoverArt(model_id)
+        )
+        custom_widget.add_prefix(album_art)
     toast = Adw.Toast(
         custom_title=custom_widget,
         timeout=2
@@ -202,18 +201,30 @@ def play_songs(window, song_list:str):
 def play_songs_next(window, song_list:str):
     song_list = song_list.split('|')
     window.queue_page.play_next(song_list)
-    threading.Thread(
-        target=__show_custom_toast,
-        args=(window, song_list[0], 'title', _("Playing {} Songs Next").format(len(song_list)))
-    ).start()
+    if len(song_list)> 1:
+        threading.Thread(
+            target=__show_custom_toast,
+            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Next"), "list-high-priority-symbolic")
+        ).start()
+    else:
+        threading.Thread(
+            target=__show_custom_toast,
+            args=(window, song_list[0], "title", _("Playing Next"))
+        ).start()
 
 def play_songs_later(window, song_list:str):
     song_list = song_list.split('|')
     window.queue_page.play_later(song_list)
-    threading.Thread(
-        target=__show_custom_toast,
-        args=(window, song_list[0], 'title', _("Playing {} Songs Later").format(len(song_list)))
-    ).start()
+    if len(song_list) > 1:
+        threading.Thread(
+            target=__show_custom_toast,
+            args=(window, None, _("{} Songs").format(len(song_list)), _("Playing Later"), "list-low-priority-symbolic")
+        ).start()
+    else:
+        threading.Thread(
+            target=__show_custom_toast,
+            args=(window, song_list[0], "title", _("Playing Later"))
+        ).start()
 
 # -- ALBUM --
 
