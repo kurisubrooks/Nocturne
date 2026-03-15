@@ -26,7 +26,11 @@ class PlaylistDialog(Adw.Dialog):
             row.set_action_target_value(target_value)
             self.list_el.append(row)
 
-        self.preferences_group_el.set_description(_("{} Songs").format(len(self.song_list)) if len(self.song_list) > 1 else _("1 Song"))
+        if len(self.song_list) > 1:
+            self.preferences_group_el.set_description(_("{} Songs").format(len(self.song_list)))
+        else:
+            integration.verifySong(self.song_list[0], force_update=True, use_threading=False)
+            self.preferences_group_el.set_description(integration.loaded_models.get(self.song_list[0]).title)
 
     @Gtk.Template.Callback()
     def search_changed(self, entry):

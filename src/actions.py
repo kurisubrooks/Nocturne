@@ -395,6 +395,17 @@ def prompt_add_songs_to_playlist(window, song_list:list):
     dialog = Widgets.playlist.PlaylistDialog(song_list)
     dialog.present(window)
 
+def prompt_add_song_to_playlist(window, model_id:str):
+    dialog = Widgets.playlist.PlaylistDialog([model_id])
+    dialog.present(window)
+
+def prompt_add_album_to_playlist(window, model_id:str):
+    integration = navidrome.get_current_integration()
+    integration.verifyAlbum(model_id, force_update=True, use_threading=False)
+    model = integration.loaded_models.get(model_id)
+    dialog = Widgets.playlist.PlaylistDialog([s.get('id') for s in model.song])
+    dialog.present(window)
+
 def add_songs_to_playlist(window, data):
     integration = navidrome.get_current_integration()
     dialogs = window.get_dialogs()

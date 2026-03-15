@@ -118,7 +118,7 @@ CONTEXT_ALBUM = {
     "add-to-playlist": {
         "name": _("Add To Playlist"),
         "icon-name": "playlist-symbolic",
-        "action-name": "app.add_album_to_playlist"
+        "action-name": "app.prompt_add_album_to_playlist"
     }
 }
 
@@ -198,7 +198,7 @@ CONTEXT_SONG = {
     "add-to-playlist": {
         "name": _("Add To Playlist"),
         "icon-name": "playlist-symbolic",
-        "action-name": "app.add_song_to_playlist"
+        "action-name": "app.prompt_add_song_to_playlist"
     },
     "remove": {
         "name": _("Remove"),
