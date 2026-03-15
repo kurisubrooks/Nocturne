@@ -25,5 +25,8 @@
 	  <key name="n-artists-home" type="i">
 	    <default>12</default>
 	  </key>
+	  <key name="show-context-button" type="b">
+	    <default>true</default>
+	  </key>
 	</schema>
 </schemalist>

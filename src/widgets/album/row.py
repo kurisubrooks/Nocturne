@@ -1,6 +1,6 @@
 # row.py
 
-from gi.repository import Gtk, Adw, GLib, Gdk
+from gi.repository import Gtk, Adw, GLib, Gdk, Gio
 from ...navidrome import get_current_integration
 from ...constants import CONTEXT_ALBUM
 from ..containers import ContextContainer
@@ -11,6 +11,7 @@ class AlbumRow(Adw.ActionRow):
     __gtype_name__ = 'NocturneAlbumRow'
 
     cover_el = Gtk.Template.Child()
+    menu_button_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -22,6 +23,14 @@ class AlbumRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'artist', self.update_artist)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        settings.bind(
+            "show-context-button",
+            self.menu_button_el,
+            "visible",
+            Gio.SettingsBindFlags.DEFAULT
+        )
 
     def update_cover(self, coverArt:str=None):
         def update():

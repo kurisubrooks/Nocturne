@@ -20,6 +20,7 @@ class SongRow(Adw.ActionRow):
     suffixes_stack_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
     check_el = Gtk.Template.Child()
+    menu_button_el = Gtk.Template.Child()
 
     def __init__(self, id:str, draggable:bool=False, removable:bool=False):
         self.id = id
@@ -39,6 +40,14 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'starred', self.update_starred)
         integration.connect_to_model(self.id, 'homePageUrl', self.update_homepage) # for radios
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
+
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        settings.bind(
+            "show-context-button",
+            self.menu_button_el,
+            "visible",
+            Gio.SettingsBindFlags.DEFAULT
+        )
 
     def generate_context_menu(self) -> ContextContainer:
         integration = get_current_integration()
