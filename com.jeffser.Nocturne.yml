@@ -92,8 +92,8 @@ modules:
         --prefix=${FLATPAK_DEST} "mpris-server" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/ab/79/15590e73b935eb1a1bbc6adb5e2a3165d522b84b29d6c9b8ad74f56bf521/mpris_server-0.9.6-py2.py3-none-any.whl
-        sha256: 13e8ffaa3b6b907c743b6ba76e9a3dfe4c2274e0a8c99ca03f66d6073c39a7fe
+        url: https://github.com/Jeffser/mpris_server/releases/download/v0.9.1/mpris_server-0.10.0-py3-none-any.whl
+        sha256: 14b3c2fd057ca5cf8110d4fe0256a5bc6ad1ccf23474daf31c44728416e6cbbc
       - type: file
         url: https://files.pythonhosted.org/packages/81/69/297302c5f5f59c862faa31e6cb9a4cd74721cd1e052b38e464c5b402df8b/StrEnum-0.4.15-py3-none-any.whl
         sha256: a30cda4af7cc6b5bf52c8055bc4bf4b2b6b14a93b574626da33df53cf7740659

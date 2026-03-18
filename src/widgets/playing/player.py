@@ -236,9 +236,9 @@ class Player(EventAdapter):
         self.bus.connect("message", self.on_message)
 
         self.adapter = PlayerAdapter(self)
-        self.mpris = Server("Nocturne", adapter=self.adapter)
+        self.mpris = Server("com.jeffser.Nocturne", adapter=self.adapter)
         super().__init__(root=self.mpris.root, player=self.mpris.player)
-        self.interface = MprisInterface('Nocturne', self.adapter)
+        self.interface = MprisInterface('com.jeffser.Nocturne', self.adapter)
         self.mpris.publish()
         GLib.timeout_add(500, self.update_stream_progress)
 
