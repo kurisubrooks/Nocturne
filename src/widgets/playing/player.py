@@ -320,22 +320,9 @@ class Player(EventAdapter):
 
     def auto_play(self):
         root = self.control_page.get_root()
-        GLib.idle_add(root.queue_page.autoplay_spinner_el.set_visible, True)
-        integration = get_current_integration()
-        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
-        current_song = integration.loaded_models.get(current_song_id)
-        if current_song:
-            artists = current_song.get_property('artists')
-            if len(artists) > 0:
-                similar_songs = integration.getSimilarSongs(artists[0].get('id'))
-            else:
-                similar_songs = []
-            if len(similar_songs) > 1 and False:
-                GLib.idle_add(root.queue_page.replace_queue, similar_songs)
-            else:
-                random_songs = integration.getRandomSongs()
-                GLib.idle_add(root.queue_page.replace_queue, random_songs)
-        GLib.idle_add(root.queue_page.autoplay_spinner_el.set_visible, False)
+        if len(root.queue_page.generated_queue) == 0:
+            root.queue_page.generate_auto_play_queue()
+        GLib.idle_add(root.queue_page.replace_queue, root.queue_page.generated_queue)
 
     def on_message(self, bus, message):
         if message.type == Gst.MessageType.STATE_CHANGED:

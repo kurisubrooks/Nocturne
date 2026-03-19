@@ -3,6 +3,7 @@
 from gi.repository import Gtk, Adw, GObject, GLib, Gio
 from ..song import SongRow
 from ...navidrome import models, get_current_integration
+import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playing/queue_page.ui')
 class PlayingQueuePage(Gtk.ScrolledWindow):
@@ -11,6 +12,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
     song_list_el = Gtk.Template.Child()
     autoplay_row_el = Gtk.Template.Child()
     autoplay_spinner_el = Gtk.Template.Child()
+    generated_queue = [] # Preload the next queue for auto-play
 
     def __init__(self):
         super().__init__()
@@ -36,6 +38,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
                     )
                 )
         integration.loaded_models.get('currentSong').set_property('songId', current_id)
+        threading.Thread(target=self.generate_auto_play_queue).start()
 
     def play_next(self, songs:list):
         integration = get_current_integration()
@@ -80,4 +83,24 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
                         removable=True
                     )
                 )
+
+    def generate_auto_play_queue(self):
+        self.generated_queue = []
+        GLib.idle_add(self.autoplay_spinner_el.set_visible, True)
+        integration = get_current_integration()
+
+        if len(list(self.song_list_el.list_el)) > 0:
+            artists = []
+            for row in list(self.song_list_el.list_el):
+                if model := integration.loaded_models.get(row.id):
+                    artists.append(model.artistId)
+            main_artist = max(set(artists), key=artists.count)
+            self.generated_queue = integration.getSimilarSongs(main_artist)
+
+        # if generated_queue is empty or more than a third of the songs are repeated just get random songs
+        repeated_songs = len([s.id for s in list(self.song_list_el.list_el) if s.id in self.generated_queue])
+        if len(self.generated_queue) == 0 or repeated_songs > len(self.generated_queue) / 3:
+            self.generated_queue = integration.getRandomSongs()
+
+        GLib.idle_add(self.autoplay_spinner_el.set_visible, False)
 
