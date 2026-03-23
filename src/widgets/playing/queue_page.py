@@ -95,8 +95,9 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
             for row in list(self.song_list_el.list_el):
                 if model := integration.loaded_models.get(row.id):
                     artists.append(model.artistId)
-            main_artist = max(set(artists), key=artists.count)
-            self.generated_queue = integration.getSimilarSongs(main_artist)
+            if len(artists) > 0:
+                main_artist = max(set(artists), key=artists.count)
+                self.generated_queue = integration.getSimilarSongs(main_artist)
 
         # Remove repeated songs, if it ends up being less than 5 then just generate a random queue
         self.generated_queue = [s for s in self.generated_queue if s not in self.song_list_el.get_all_ids()]

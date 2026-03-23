@@ -2,10 +2,11 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
-import requests, random, threading, favicon, io, pathlib, re
+from datetime import datetime, timezone
+import requests, random, threading, favicon, io, pathlib, re, json, os
 from PIL import Image
 from mutagen import File
-from ..constants import MUSIC_DIR
+from ..constants import MUSIC_DIR, LOCAL_DATA_DIR
 
 class Local(GObject.Object):
     __gtype_name__ = 'NocturneIntegrationLocal'
@@ -24,6 +25,17 @@ class Local(GObject.Object):
         audio_data_list = []
         path_obj = pathlib.Path(self.music_dir)
 
+        # load star_dict
+        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
+        try:
+            with open(STARFILE, 'r') as f:
+                star_dict = json.load(f)
+            if not isinstance(star_dict, dict):
+                star_dict = {}
+        except Exception:
+            star_dict = {}
+
+        # load songs, albums, artists
         for file_path in path_obj.rglob("*"):
             if file_path.suffix.lower() in self.supported_extensions:
                 try:
@@ -32,14 +44,16 @@ class Local(GObject.Object):
                         continue
 
                     # Making Song Model
+                    song_id = "SONG:{}".format(file_path)
                     song = {
-                        'id': "SONG:{}".format(file_path),
+                        'id': song_id,
                         'path': file_path,
                         'duration': audio.info.length if hasattr(audio, 'info') else 0,
                         'title': "",
                         'album': "",
                         'artist': "",
-                        'artists': []
+                        'artists': [],
+                        'starred': star_dict.get(song_id)
                     }
 
                     if file_path.suffix.lower() == '.mp3':
@@ -50,21 +64,39 @@ class Local(GObject.Object):
                         if len(artists) > 0:
                             song['artist'] = artists[0]
                             for artist in artists:
+                                artist_id = "ARTIST:{}".format(artist)
                                 song['artists'].append({
-                                    'id': "ARTIST:{}".format(artist),
-                                    'name': artist
+                                    'id': artist_id,
+                                    'name': artist,
+                                    'starred': star_dict.get(artist_id)
                                 })
                     else:
                         # Vorbis/FLAC/MP4 Mapping
-                        song["title"] = audio.get('title', [file_path.name.removesuffix(file_path.suffix)])[0]
-                        song["album"] = audio.get('album', [""])[0]
-                        artists = [artist.strip() for artist in audio.get('artist', [])[1:] + (audio.get('artist')[0].split(';') if len(audio.get('artist', [])) > 0 else [])]
+                        if 'title' in audio:
+                            song["title"] = audio.get('title', [file_path.name.removesuffix(file_path.suffix)])[0]
+                        else:
+                            song["title"] = audio.get('©nam', [file_path.name.removesuffix(file_path.suffix)])[0]
+
+                        if 'album' in audio:
+                            song["album"] = audio.get('album', [""])[0]
+                        else:
+                            song["album"] = audio.get('©alb', [""])[0]
+
+
+                        if 'artist' in audio:
+                            artist_list = audio.get('artist', [])
+                        else:
+                            artist_list = audio.get('©ART', [])
+
+                        artists = [artist.strip() for artist in artist_list[1:] + (artist_list[0].split(';') if len(artist_list) > 0 else [])]
                         if len(artists) > 0:
                             song['artist'] = artists[0]
                             for artist in artists:
+                                artist_id = "ARTIST:{}".format(artist)
                                 song['artists'].append({
-                                    'id': "ARTIST:{}".format(artist),
-                                    'name': artist
+                                    'id': artist_id,
+                                    'name': artist,
+                                    'starred': star_dict.get(artist_id)
                                 })
 
                     song["artistId"] = "ARTIST:{}".format(song.get("artist")) if song.get('artist') else ""
@@ -83,7 +115,8 @@ class Local(GObject.Object):
                                 'name': song.get('album'),
                                 'artist': song.get('artist'),
                                 'artistId': song.get('artistId'),
-                                'song': [{'id': song.get('id')}]
+                                'song': [{'id': song.get('id')}],
+                                'starred': star_dict.get(song.get('albumId'))
                             }
                             self.loaded_models[album.get('id')] = models.Album(**album)
 
@@ -96,7 +129,8 @@ class Local(GObject.Object):
                                     'path': song.get('path'),
                                     'name': a_dict.get('name'),
                                     'album': [],
-                                    'albumCount': 0
+                                    'albumCount': 0,
+                                    'starred': star_dict.get(a_dict.get('id'))
                                 }
                                 self.loaded_models[artist.get('id')] = models.Artist(**artist)
 
@@ -109,6 +143,49 @@ class Local(GObject.Object):
                 except Exception as e:
                     print('Error loading items:', e)
 
+        # Load radios
+        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
+        try:
+            with open(RADIOFILE, 'r') as f:
+                radio_dict = json.load(f)
+            if not isinstance(radio_dict, dict):
+                radio_dict = {}
+        except Exception:
+            radio_dict = {}
+
+        for radio_id, radio in radio_dict.items():
+            self.loaded_models[radio_id] = models.Song(
+                id=radio_id,
+                title=radio.get('name'),
+                streamUrl=radio.get('streamUrl'),
+                homePageUrl=radio.get('homePageUrl'),
+                duration=-1,
+                isRadio=True
+            )
+
+        # Load playlists
+        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
+        try:
+            with open(PLAYLISTFILE, 'r') as f:
+                playlist_dict = json.load(f)
+            if not isinstance(playlist_dict, dict):
+                playlist_dict = {}
+        except Exception:
+            playlist_dict = {}
+
+        for playlist_id, playlist in playlist_dict.items():
+            path_str = ""
+            if len(playlist.get('songId', [])) > 0:
+                if model := self.loaded_models.get(playlist.get('songId')[0]):
+                    path_str = model.path
+
+            self.loaded_models[playlist_id] = models.Playlist(
+                id=playlist_id,
+                name=playlist.get('name'),
+                songCount=len(playlist.get('songId', [])),
+                entry=[{'id': id} for id in playlist.get('songId', [])],
+                path = path_str
+            )
     # ----------- #
 
     def connect_to_model(self, id:str, parameter:str, callback:callable, use_gtk_thread:bool=True) -> str:
@@ -174,11 +251,14 @@ class Local(GObject.Object):
             if model := self.loaded_models.get(id):
                 if isinstance(model, models.Song) and model.isRadio:
                     return self.getRadioCoverArtWithBytes(id)
-                if model.gdkPaintable:
+                if not isinstance(model, models.Playlist) and model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
 
                 if not model.get_property('coverArt'):
-                    model.set_property('coverArt', random.randint(0,1000))
+                    model.set_property('coverArt', str(random.randint(1,1000)))
+
+                if not model.path:
+                    return None, None
 
                 audio_file = File(model.path)
                 if audio_file is None:
@@ -215,17 +295,20 @@ class Local(GObject.Object):
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         # list_type and offset are not implemented yet
-        album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
         if list_type == "random":
+            album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
             random.shuffle(album_list)
+        elif list_type == "starred":
+            album_list = [id for id, model in self.loaded_models.items() if id.startswith('ALBUM:') and model.starred]
+        else:
+            album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
         return album_list[offset:size]
 
     def getArtists(self, size:int=10) -> list:
         return [id for id in list(self.loaded_models) if id.startswith('ARTIST:')][:size]
 
     def getPlaylists(self) -> list:
-        # not implemented
-        return []
+        return [id for id in list(self.loaded_models) if id.startswith('PLAYLIST:')]
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
         # no need
@@ -236,28 +319,77 @@ class Local(GObject.Object):
         return
 
     def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
-        # not implemented
+        # no need
         return
 
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
         # no need
         return
 
-    def start(self, id:str) -> bool:
-        # not implemented
-        return False
+    def star(self, id:str) -> bool:
+        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
 
-    def unstart(self, id:str) -> bool:
-        # not implemented
-        return False
+        try:
+            with open(STARFILE, 'r') as f:
+                star_dict = json.load(f)
+            if not isinstance(star_dict, dict):
+                star_dict = {}
+        except Exception:
+            star_dict = {}
+
+        current_time = datetime.now(timezone.utc).isoformat(timespec='microseconds').replace("+00:00", "Z")
+        star_dict[id] = current_time
+
+        with open(STARFILE, 'w') as f:
+            json.dump(star_dict, f, ensure_ascii=False)
+
+        return True
+
+    def unstar(self, id:str) -> bool:
+        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
+
+        try:
+            with open(STARFILE, 'r') as f:
+                star_dict = json.load(f)
+            if not isinstance(star_dict, list):
+                star_dict = {}
+        except Exception:
+            star_dict = {}
+
+        if id in star_dict:
+            del star_dict[id]
+
+        with open(STARFILE, 'w') as f:
+            json.dump(star_dict, f, ensure_ascii=False)
+
+        return True
 
     def getPlayQueue(self) -> tuple:
-        # not implemented
-        return None, []
+        QUEUEFILE = os.path.join(LOCAL_DATA_DIR, 'queue.json')
+
+        try:
+            with open(QUEUEFILE, 'r') as f:
+                queue_dict = json.load(f)
+            if not isinstance(queue_dict, dict):
+                queue_dict = {}
+        except Exception:
+            queue_dict = {}
+
+        return queue_dict.get('current', ""), queue_dict.get('id', [])
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
-        # not implemented
-        return False
+        QUEUEFILE = os.path.join(LOCAL_DATA_DIR, 'queue.json')
+
+        queue_dict = {
+            'id': id_list,
+            'current': current,
+            'position': position
+        }
+
+        with open(QUEUEFILE, 'w') as f:
+            json.dump(queue_dict, f, ensure_ascii=False)
+
+        return True
 
     def getSimilarSongs(self, id:str, count:int=20) -> list:
         # not implemented
@@ -290,32 +422,170 @@ class Local(GObject.Object):
         }
 
     def getInternetRadioStations(self) -> list:
-        # not implemented
-        return []
+        return [id for id in list(self.loaded_models) if id.startswith('RADIO:')]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str, homepageUrl:str) -> bool:
-        # not implemented
-        return False
+    def createInternetRadioStation(self, name:str, streamUrl:str, homePageUrl:str) -> bool:
+        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
+        try:
+            with open(RADIOFILE, 'r') as f:
+                radio_dict = json.load(f)
+            if not isinstance(radio_dict, dict):
+                radio_dict = {}
+        except Exception:
+            radio_dict = {}
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homepageUrl:str) -> bool:
-        # not implemented
-        return False
+        radio_id = 'RADIO:{}'.format(streamUrl)
+        radio_dict[radio_id] = {
+            'name': name,
+            'streamUrl': streamUrl,
+            'homePageUrl': homePageUrl
+        }
+
+        self.loaded_models[radio_id] = models.Song(
+            id=radio_id,
+            title=name,
+            streamUrl=streamUrl,
+            homePageUrl=homePageUrl,
+            duration=-1,
+            isRadio=True
+        )
+
+        with open(RADIOFILE, 'w') as f:
+            json.dump(radio_dict, f, ensure_ascii=False)
+
+        return True
+
+    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homePageUrl:str) -> bool:
+        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
+        try:
+            with open(RADIOFILE, 'r') as f:
+                radio_dict = json.load(f)
+            if not isinstance(radio_dict, dict):
+                radio_dict = {}
+        except Exception:
+            radio_dict = {}
+
+        radio_dict[id] = {
+            'name': name,
+            'streamUrl': streamUrl,
+            'homePageUrl': homePageUrl
+        }
+        if model := self.loaded_models.get(id):
+            model.set_property('name', name)
+            model.set_property('streamUrl', streamUrl)
+            model.set_property('homePageUrl', homePageUrl)
+            model.set_property('coverArt', str(random.randint(1,1000)))
+
+        with open(RADIOFILE, 'w') as f:
+            json.dump(radio_dict, f, ensure_ascii=False)
+
+        return True
 
     def deleteInternetRadioStation(self, id:str) -> bool:
-        # not implemented
-        return False
+        RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
+        try:
+            with open(RADIOFILE, 'r') as f:
+                radio_dict = json.load(f)
+            if not isinstance(radio_dict, dict):
+                radio_dict = {}
+        except Exception:
+            radio_dict = {}
+
+        if id in radio_dict:
+            del radio_dict[id]
+
+        with open(RADIOFILE, 'w') as f:
+            json.dump(radio_dict, f, ensure_ascii=False)
+
+        return True
 
     def createPlaylist(self, name:str=None, playlistId:str=None, songId:list=[]) -> str:
-        # not implemented
-        return ""
+        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
+        try:
+            with open(PLAYLISTFILE, 'r') as f:
+                playlist_dict = json.load(f)
+            if not isinstance(playlist_dict, dict):
+                playlist_dict = {}
+        except Exception:
+            playlist_dict = {}
+
+        playlistId = playlistId or "PLAYLIST:{}".format(name)
+
+        playlist_dict[playlistId] = {
+            'name': name,
+            'songId': songId
+        }
+
+        path_str = ""
+        if len(songId) > 0:
+            if model := self.loaded_models.get(songId[0]):
+                path_str = model.path
+        print('CREATE', path_str)
+
+        self.loaded_models[playlistId] = models.Playlist(
+            id=playlistId,
+            name=name,
+            songCount=len(songId),
+            entry=[{'id': id} for id in songId],
+            path = path_str
+        )
+
+        with open(PLAYLISTFILE, 'w') as f:
+            json.dump(playlist_dict, f, ensure_ascii=False)
+
+        return playlistId
 
     def updatePlaylist(self, playlistId:str, songIdToAdd:list=[], songIndexToRemove:list=[]) -> bool:
-        # not implemented
-        return False
+        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
+        try:
+            with open(PLAYLISTFILE, 'r') as f:
+                playlist_dict = json.load(f)
+            if not isinstance(playlist_dict, dict):
+                playlist_dict = {}
+        except Exception:
+            playlist_dict = {}
+
+        if playlistId in playlist_dict:
+            songs = playlist_dict.get(playlistId).get('songId')
+            for index in songIndexToRemove:
+                songs.pop(int(index))
+            songs.extend(songIdToAdd)
+            playlist_dict[playlistId]['songId'] = songs
+
+            if model := self.loaded_models.get(playlistId):
+                songId = playlist_dict.get(playlistId).get('songId')
+                model.set_property('songCount', len(songId))
+                model.set_property('entry', [{'id': id} for id in songId])
+                path_str = ""
+                if len(songId) > 0:
+                    if model := self.loaded_models.get(songId[0]):
+                        path_str = model.path
+                print('UPDATE', path_str)
+                model.set_property('path', path_str)
+                model.set_property('coverArt', str(random.randint(1,1000)))
+
+        with open(PLAYLISTFILE, 'w') as f:
+            json.dump(playlist_dict, f, ensure_ascii=False)
+
+        return True
 
     def deletePlaylist(self, id:str) -> bool:
-        # not implemented
-        return False
+        PLAYLISTFILE = os.path.join(LOCAL_DATA_DIR, 'playlists.json')
+        try:
+            with open(PLAYLISTFILE, 'r') as f:
+                playlist_dict = json.load(f)
+            if not isinstance(playlist_dict, dict):
+                playlist_dict = {}
+        except Exception:
+            playlist_dict = {}
+
+        if id in playlist_dict:
+            del playlist_dict[id]
+
+        with open(PLAYLISTFILE, 'w') as f:
+            json.dump(playlist_dict, f, ensure_ascii=False)
+
+        return True
 
     def scrobble(self, id:str):
         # not implemented

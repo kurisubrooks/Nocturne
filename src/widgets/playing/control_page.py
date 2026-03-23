@@ -150,7 +150,7 @@ class PlayingControlPage(Adw.NavigationPage):
             self.title_el.set_tooltip_text(model.get_property('title'))
 
             # HomePage (radio)
-            if model.get_property('isRadio'):
+            if model.get_property('isRadio') and model.get_property('homePageUrl'):
                 self.radio_homepage_el.get_child().set_label(urlparse(model.get_property('homePageUrl')).netloc.capitalize())
                 self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.get_property('homePageUrl')))
                 self.radio_homepage_el.set_tooltip_text(model.get_property('homePageUrl'))
@@ -270,6 +270,7 @@ class PlayingControlPage(Adw.NavigationPage):
             stream_url = integration.get_stream_url(songId)
             self.player.gst.set_property('uri', stream_url)
             self.player.gst.set_state(Gst.State.PLAYING)
+
 
 
 

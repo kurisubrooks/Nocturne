@@ -18,6 +18,8 @@ DATA_DIR = get_xdg_home("XDG_DATA_HOME", "~/.local/share")
 CONFIG_DIR = get_xdg_home("XDG_CONFIG_HOME", "~/.config")
 CACHE_DIR = get_xdg_home("XDG_CACHE_HOME", "~/.cache")
 MUSIC_DIR = subprocess.check_output(["xdg-user-dir", "MUSIC"], text=True).strip() or os.path.expanduser("~/Music")
+LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
+os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
 
 BASE_NAVIDROME_DIR = os.path.join(DATA_DIR, "navidrome")
 os.makedirs(BASE_NAVIDROME_DIR, exist_ok=True)
@@ -240,3 +242,4 @@ CONTEXT_SONG = {
         "icon-name": "user-trash-symbolic"
     }
 }
+

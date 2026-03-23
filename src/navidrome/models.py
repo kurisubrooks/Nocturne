@@ -104,6 +104,7 @@ class Playlist(GObject.Object):
     coverArt = GObject.Property(type=str)
     readonly = GObject.Property(type=bool, default=False)
     entry = GObject.Property(type=GObject.TYPE_PYOBJECT) #list
+    path = GObject.Property(type=str) # For use in Local
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -193,4 +194,5 @@ class CurrentSong(GObject.Object):
     songId = GObject.Property(type=str)
     positionSeconds = GObject.Property(type=float, default=0.0)
     playbackMode = GObject.Property(type=str, default="consecutive") # consecutive, # repeat-one # repeat-all
+
 

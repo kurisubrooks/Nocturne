@@ -388,22 +388,22 @@ class Navidrome(GObject.Object):
                 )
         return [radio.get('id') for radio in radios]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str, homepageUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, streamUrl:str, homePageUrl:str) -> bool:
         # returns true if ok
         response = self.make_request('createInternetRadioStation', {
             'name': name,
             'streamUrl': streamUrl,
-            'homepageUrl': homepageUrl
+            'homepageUrl': homePageUrl
         })
         return response.get('status') == 'ok'
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homepageUrl:str) -> bool:
+    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homePageUrl:str) -> bool:
         # returns true if ok
         response = self.make_request('updateInternetRadioStation', {
             'id': id,
             'name': name,
             'streamUrl': streamUrl,
-            'homepageUrl': homepageUrl
+            'homepageUrl': homePageUrl
         })
         return response.get('status') == 'ok'
 

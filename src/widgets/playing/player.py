@@ -63,7 +63,7 @@ class PlayerAdapter(MprisAdapter):
             album=song.get_property('album'),
             album_artists=[a.get('name') for a in song.get_property('albumArtists')],
             art_url=song.get_property('coverArtUrl'),
-            artists=[urlparse(song.get_property('homePageUrl')).netloc.capitalize()] if song.get_property('isRadio') else [a.get('name') for a in song.get_property('artists')],
+            artists=[urlparse(song.get_property('homePageUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('homePageUrl') else [a.get('name') for a in song.get_property('artists')],
             as_text=[song.get_property('title')],
             audio_bpm=song.get_property('bpm'),
             composer=song.get_property('displayComposer'),
