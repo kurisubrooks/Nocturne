@@ -1,4 +1,4 @@
-<p align="center">
+<p align="center"><img src="https://jeffser.com/images/nocturne/logo.svg">
 <h1 align="center">Nocturne</h1>
 
 <p align="center">Nocturne is a Navidrome / Subsonic client that brings all your music together in one place, Nocturne not only connects to existing instances but it's capable of installing and managing it's own Navidrome instance</p>
