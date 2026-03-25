@@ -98,7 +98,7 @@ class LyricsDialog(Adw.Dialog):
         elif lyrics.get('type') == 'plain':
             for index, line in enumerate(lyrics.get('content').split('\n')):
                 row = LyricEditRow(
-                    ms=index*1000000,
+                    ms=index*10000000,
                     content=line,
                     invalid_ms=True
                 )
@@ -187,21 +187,15 @@ class LyricsDialog(Adw.Dialog):
     @Gtk.Template.Callback()
     def save_clicked(self, button):
         lines = []
-        is_synced = True
         for row in list(self.lrc_list_el):
             # ms, content
             lines.append((row.get_title(), row.get_text()))
-            is_synced = is_synced and not row.invalid_ms
 
-        if is_synced:
-            file_text = '\n'.join(['[{}] {}'.format(ms, content) for ms, content in lines])
-        else:
-            file_text = '\n'.join([content for ms, content in lines])
+        file_text = '\n'.join(['[{}] {}'.format(ms, content) for ms, content in lines])
 
         target_value = GLib.Variant('a{sv}', {
             'id': GLib.Variant('s', self.id),
-            'content': GLib.Variant('s', file_text),
-            'is_synced': GLib.Variant('b', is_synced)
+            'content': GLib.Variant('s', file_text)
         })
         self.get_root().activate_action("app.save_lyrics", target_value)
 

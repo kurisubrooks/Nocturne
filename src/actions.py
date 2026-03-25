@@ -262,7 +262,6 @@ def save_lyrics(window, lyric_dict:dict):
     # lyric_dict KEYS
     # id:str
     # content:str
-    # is_synced:bool
 
     integration = get_current_integration()
     model = integration.loaded_models.get(lyric_dict.get('id'))
@@ -274,9 +273,8 @@ def save_lyrics(window, lyric_dict:dict):
     )
     lyrics_dir = os.path.join(DATA_DIR, 'lyrics')
     lrc_path = os.path.join(lyrics_dir, file_name_without_ext+'.lrc')
-    plain_path = os.path.join(lyrics_dir, file_name_without_ext+'.txt')
 
-    with open(lrc_path if lyric_dict.get('is_synced') else plain_path, 'w') as f:
+    with open(lrc_path, 'w') as f:
         f.write(lyric_dict.get('content'))
 
     window.lyrics_page.song_changed(lyric_dict.get('id'))
