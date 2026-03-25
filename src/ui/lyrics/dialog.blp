@@ -100,6 +100,15 @@ template $NocturneLyricsDialog: Adw.Dialog {
         }
 
         Gtk.Button {
+          tooltip-text: _("Set Next Line Timestamp to Now");
+          icon-name: "stopwatch-symbolic";
+          clicked => $set_next_timestamp();
+          styles [
+            "circular"
+          ]
+        }
+
+        Gtk.Button {
           tooltip-text: _("Add Line at Timestamp");
           icon-name: "list-add-symbolic";
           clicked => $add_line();

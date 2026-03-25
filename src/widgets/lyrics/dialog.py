@@ -34,12 +34,13 @@ class LyricEditRow(Adw.EntryRow):
         )
 
     @Gtk.Template.Callback()
-    def set_current_timestamp(self, button):
+    def set_current_timestamp(self, button=None):
         integration = get_current_integration()
         ps = integration.loaded_models.get('currentSong').get_property('positionSeconds')
         self.ms = int(ps * 1000)
         self.invalid_ms = False
-        GLib.idle_add(button.get_ancestor(Gtk.Popover).popdown)
+        if button:
+            GLib.idle_add(button.get_ancestor(Gtk.Popover).popdown)
         GLib.idle_add(self.show_timestamp)
         GLib.idle_add(self.get_ancestor(Gtk.ListBox).invalidate_sort)
 
@@ -202,3 +203,8 @@ class LyricsDialog(Adw.Dialog):
         get_current_integration().loaded_models.get('currentSong').set_property('playbackMode', self.playback_mode_backup)
         self.close()
 
+    @Gtk.Template.Callback()
+    def set_next_timestamp(self, button):
+        next_index = list(self.lrc_list_el).index(self.focused_row) + 1
+        if next_index < len(list(self.lrc_list_el)):
+            GLib.idle_add(list(self.lrc_list_el)[next_index].set_current_timestamp)
