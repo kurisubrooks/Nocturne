@@ -2,6 +2,7 @@
 
 from gi.repository import Secret
 import hashlib, secrets, string
+from ..constants import FALLBACK_PASSWORD_PATH
 
 BASE_SCHEMA = Secret.Schema.new(
     "com.jeffser.Nocturne.Password",
@@ -11,27 +12,44 @@ BASE_SCHEMA = Secret.Schema.new(
     }
 )
 
-def store_password(password:str):
-    attributes = {"type": "password"}
+def keyring_available() -> bool:
+    try:
+        service = Secret.Service.get_sync(Secret.ServiceFlags.NONE, None)
+        return bool(service)
+    except Exception as e:
+        print('Keyring failed, using fallback: ', e)
+    return False
 
-    Secret.password_store_sync(
-        BASE_SCHEMA,
-        attributes,
-        Secret.COLLECTION_DEFAULT,
-        "Nocturne Login",
-        password,
-        None
-    )
+def store_password(password:str):
+    if keyring_available():
+        attributes = {"type": "password"}
+
+        Secret.password_store_sync(
+            BASE_SCHEMA,
+            attributes,
+            Secret.COLLECTION_DEFAULT,
+            "Nocturne Login",
+            password,
+            None
+        )
+    else:
+        with open(FALLBACK_PASSWORD_PATH, 'w') as f:
+            f.write(password)
 
 def get_hashed_password() -> tuple:
     # returns salt, hashed password
-    attributes = {"type": "password"}
+    password = ""
+    if keyring_available():
+        attributes = {"type": "password"}
 
-    password = Secret.password_lookup_sync(
-        BASE_SCHEMA,
-        attributes,
-        None
-    )
+        password = Secret.password_lookup_sync(
+            BASE_SCHEMA,
+            attributes,
+            None
+        )
+    else:
+        with open(FALLBACK_PASSWORD_PATH, 'r') as f:
+            password = f.read()
 
     salt = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
     salted_password = password + salt

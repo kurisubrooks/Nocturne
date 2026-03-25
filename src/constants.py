@@ -23,6 +23,9 @@ LOCAL_DATA_DIR = os.path.join(DATA_DIR, "local")
 os.makedirs(LOCAL_DATA_DIR, exist_ok=True)
 MPRIS_COVER_PATH = os.path.join(CACHE_DIR, 'cover.png')
 
+# Fallback only used if the system does not have a keyring
+FALLBACK_PASSWORD_PATH = os.path.join(CONFIG_DIR, 'pass.txt')
+
 BASE_NAVIDROME_DIR = os.path.join(DATA_DIR, "navidrome")
 os.makedirs(BASE_NAVIDROME_DIR, exist_ok=True)
 NAVIDROME_ENV = {
