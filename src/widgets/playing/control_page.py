@@ -251,6 +251,8 @@ class PlayingControlPage(Adw.NavigationPage):
             raw_bytes, paintable = integration.getCoverArtWithBytes(song_id)
             if raw_bytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
                 threading.Thread(target=self.update_palette, args=(raw_bytes,)).start()
+            else:
+                GLib.idle_add(self.get_root().remove_css_class, 'dynamic-accent-bg')
             if paintable:
                 GLib.idle_add(self.cover_el.set_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_visible, True)
@@ -280,6 +282,7 @@ class PlayingControlPage(Adw.NavigationPage):
             stream_url = integration.get_stream_url(songId)
             self.player.gst.set_property('uri', stream_url)
             self.player.gst.set_state(Gst.State.PLAYING)
+
 
 
 
