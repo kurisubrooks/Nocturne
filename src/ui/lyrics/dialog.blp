@@ -111,9 +111,19 @@ template $NocturneLyricsDialog: Adw.Dialog {
     }
 
     content: Gtk.Stack main_stack {
+      transition-type: crossfade;
+
       Gtk.StackPage {
         name: "loading";
         child: Adw.Spinner {};
+      }
+
+      Gtk.StackPage {
+        name: "empty";
+        child: Adw.StatusPage {
+          title: _("No Lyrics");
+          description: _("No lyrics found for this track, to get started add a new line");
+        };
       }
 
       Gtk.StackPage {

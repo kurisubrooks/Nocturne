@@ -47,6 +47,7 @@ class LyricEditRow(Adw.EntryRow):
     def remove(self, button):
         GLib.idle_add(button.get_ancestor(Gtk.Popover).popdown)
         GLib.idle_add(self.get_ancestor(Gtk.ListBox).remove, self)
+        GLib.idle_add(self.get_ancestor(Adw.Dialog).update_visibility)
 
     def show_timestamp(self):
         self.set_title(_("No Timestamp") if self.invalid_ms else get_display_time(self.ms / 1000, True))
@@ -103,7 +104,7 @@ class LyricsDialog(Adw.Dialog):
                 )
                 GLib.idle_add(self.lrc_list_el.append, row)
         GLib.idle_add(self.lrc_list_el.invalidate_sort)
-        GLib.idle_add(self.main_stack.set_visible_child_name, 'content')
+        GLib.idle_add(self.update_visibility)
 
     def position_changed(self, position_seconds:float):
         self.progress_el.get_adjustment().set_value(position_seconds)
@@ -122,6 +123,9 @@ class LyricsDialog(Adw.Dialog):
                     self.focused_row.ts_button.remove_css_class('suggested-action')
                 self.focused_row = best_match
                 self.focused_row.ts_button.add_css_class('suggested-action')
+
+    def update_visibility(self):
+        self.main_stack.set_visible_child_name('content' if len(list(self.lrc_list_el)) > 0 else 'empty')
 
     @Gtk.Template.Callback()
     def seek_start(self, gesture, n_press, x, y):
@@ -151,6 +155,7 @@ class LyricsDialog(Adw.Dialog):
         )
         self.lrc_list_el.append(row)
         GLib.idle_add(self.lrc_list_el.invalidate_sort)
+        GLib.idle_add(self.update_visibility)
 
     @Gtk.Template.Callback()
     def play_clicked(self, button):
