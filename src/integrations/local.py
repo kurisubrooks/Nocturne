@@ -129,19 +129,13 @@ class Local(Base):
             )
     # ----------- #
 
-    def connect_to_model(self, id:str, parameter:str, callback:callable, use_gtk_thread:bool=True) -> str:
-        connection_id = super().connect_to_model(id, parameter, callback, use_gtk_thread)
-        if parameter == "coverArt":
-            self.getCoverArt(id)
-        return connection_id
-
     def get_stream_url(self, song_id:str) -> str:
         model = self.loaded_models.get(song_id)
         if model.isRadio:
             return model.streamUrl
         return 'file://{}'.format(model.path)
 
-    def getRadioCoverArtWithBytes(self, id:str=None) -> tuple:
+    def getRadioCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
             if model := self.loaded_models.get(id):
@@ -162,8 +156,9 @@ class Local(Base):
                                 png_buffer = io.BytesIO()
                                 img.save(png_buffer, format="PNG")
                                 png_bytes = png_buffer.getvalue()
-                            texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(png_bytes))
-                            model.set_property('gdkPaintableBytes', png_bytes)
+                            gbytes = GLib.Bytes.new(png_bytes)
+                            texture = Gdk.Texture.new_from_bytes(gbytes)
+                            model.set_property('gdkPaintableBytes', gbytes)
                             model.set_property('gdkPaintable', texture)
                             return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                         except Exception as e:
@@ -171,17 +166,14 @@ class Local(Base):
 
         return None, None
 
-    def getCoverArtWithBytes(self, id:str=None) -> tuple:
+    def getCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
             if model := self.loaded_models.get(id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArtWithBytes(id)
+                    return self.getRadioCoverArt(id)
                 if not isinstance(model, models.Playlist) and model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
-
-                if not model.get_property('coverArt'):
-                    model.set_property('coverArt', str(random.randint(1,1000)))
 
                 if not model.path:
                     return None, None
@@ -204,16 +196,12 @@ class Local(Base):
                 try:
                     gbytes = GLib.Bytes.new(raw_data)
                     texture = Gdk.Texture.new_from_bytes(gbytes)
-                    model.set_property('gdkPaintableBytes', raw_data)
+                    model.set_property('gdkPaintableBytes', gbytes)
                     model.set_property('gdkPaintable', texture)
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                 except Exception as e:
                     pass
         return None, None
-
-    def getCoverArt(self, id:str=None) -> Gdk.Paintable:
-        # Returns a paintable at the specified size, should be used directly in GTK without modifications
-        return self.getCoverArtWithBytes(id)[1]
 
     def ping(self) -> bool:
         # Implemented from Navidrome, just a check
@@ -266,20 +254,16 @@ class Local(Base):
         return [id for id in list(self.loaded_models) if id.startswith('PLAYLIST:')]
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
-        # no need
-        return
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
-        # no need
-        return
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
-        # no need
-        return
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
-        # no need
-        return
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def star(self, id:str) -> bool:
         STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')

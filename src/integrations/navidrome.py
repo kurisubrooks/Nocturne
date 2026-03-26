@@ -58,7 +58,7 @@ class Navidrome(Base):
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         return '{}/rest/stream?{}'.format(self.base_url.strip('/'), query_string)
 
-    def getRadioCoverArtWithBytes(self, id:str=None) -> tuple:
+    def getRadioCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
             if model := self.loaded_models.get(id):
@@ -79,8 +79,9 @@ class Navidrome(Base):
                                 png_buffer = io.BytesIO()
                                 img.save(png_buffer, format="PNG")
                                 png_bytes = png_buffer.getvalue()
-                            texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(png_bytes))
-                            model.set_property('gdkPaintableBytes', png_bytes)
+                            gbytes = GLib.Bytes.new(png_bytes)
+                            texture = Gdk.Texture.new_from_bytes(gbytes)
+                            model.set_property('gdkPaintableBytes', gbytes)
                             model.set_property('gdkPaintable', texture)
                             return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                         except Exception as e:
@@ -88,18 +89,20 @@ class Navidrome(Base):
 
         return None, None
 
-    def getCoverArtWithBytes(self, id:str=None) -> tuple:
+    def getCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
             if model:= self.loaded_models.get(id):
                 if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArtWithBytes(id)
+                    return self.getRadioCoverArt(id)
                 if isinstance(model, models.Song) and model.isExternalFile:
-                    return local.Local.getCoverArtWithBytes(self, id)
+                    return local.Local.getCoverArt(self, id)
                 coverArtId = ""
                 if model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
                 coverArtId = model.coverArt
+                if not coverArtId:
+                    return None, None
 
                 params = {
                     **self.get_base_params(),
@@ -111,18 +114,15 @@ class Navidrome(Base):
 
                 if response_bytes and len(response_bytes) > 0:
                     try:
-                        texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(response_bytes))
-                        model.set_property('gdkPaintableBytes', response_bytes)
+                        gbytes = GLib.Bytes.new(response_bytes)
+                        texture = Gdk.Texture.new_from_bytes(gbytes)
+                        model.set_property('gdkPaintableBytes', gbytes)
                         model.set_property('gdkPaintable', texture)
                         return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
                     except Exception as e:
                         pass
 
         return None, None
-
-    def getCoverArt(self, id:str=None) -> Gdk.Paintable:
-        # Returns a paintable at the specified size, should be used directly in GTK without modifications
-        return self.getCoverArtWithBytes(id)[1]
 
     def ping(self) -> bool:
         try:
@@ -213,6 +213,8 @@ class Navidrome(Base):
             else:
                 update()
 
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+
     def verifyAlbum(self, id:str, force_update:bool=False, use_threading:bool=True):
         def update():
             response = self.make_request('getAlbum', {'id': id})
@@ -228,6 +230,8 @@ class Navidrome(Base):
                 threading.Thread(target=update).start()
             else:
                 update()
+
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def verifyPlaylist(self, id:str, force_update:bool=False, use_threading:bool=True):
         def update():
@@ -245,6 +249,8 @@ class Navidrome(Base):
             else:
                 update()
 
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+
     def verifySong(self, id:str, force_update:bool=False, use_threading:bool=True):
         def update():
             response = self.make_request('getSong', {'id': id})
@@ -260,6 +266,8 @@ class Navidrome(Base):
                 threading.Thread(target=update).start()
             else:
                 update()
+
+        threading.Thread(target=self.getCoverArt, args=(id,)).start()
 
     def star(self, id:str) -> bool:
         response = self.make_request('star', {'id': id})

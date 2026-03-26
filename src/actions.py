@@ -24,7 +24,7 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
     if icon_name:
         custom_widget.set_icon_name(icon_name)
     else:
-        paintable = integration.getCoverArt(model_id)
+        gbytes, paintable = integration.getCoverArt(model_id)
         album_art = Gtk.Image(
             css_classes=['card'],
             height_request=48,

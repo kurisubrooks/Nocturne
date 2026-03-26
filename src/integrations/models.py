@@ -1,13 +1,13 @@
 # models.py
 
-from gi.repository import GObject
+from gi.repository import GObject, Gdk, GLib
 
 class Album(GObject.Object):
     __gtype_name__ = 'NocturneModelAlbum'
 
     id = GObject.Property(type=str)
-    gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
-    gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    gdkPaintable = GObject.Property(type=Gdk.Paintable)
+    gdkPaintableBytes = GObject.Property(type=GLib.Bytes)
     name = GObject.Property(type=str)
     artist = GObject.Property(type=str)
     artistId = GObject.Property(type=str)
@@ -54,8 +54,8 @@ class Artist(GObject.Object):
     __gtype_name__ = 'NocturneModelArtist'
 
     id = GObject.Property(type=str)
-    gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
-    gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    gdkPaintable = GObject.Property(type=Gdk.Paintable) #Gdk.Paintable
+    gdkPaintableBytes = GObject.Property(type=GLib.Bytes)
     name = GObject.Property(type=str)
     coverArt = GObject.Property(type=str)
     albumCount = GObject.Property(type=int)
@@ -90,8 +90,8 @@ class Playlist(GObject.Object):
     __gtype_name__ = 'NocturneModelPlaylist'
 
     id = GObject.Property(type=str)
-    gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
-    gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    gdkPaintable = GObject.Property(type=Gdk.Paintable) #Gdk.Paintable
+    gdkPaintableBytes = GObject.Property(type=GLib.Bytes)
     name = GObject.Property(type=str)
     songCount = GObject.Property(type=int)
     duration = GObject.Property(type=int)
@@ -123,8 +123,8 @@ class Song(GObject.Object):
     __gtype_name__ = 'NocturneModelSong'
 
     id = GObject.Property(type=str)
-    gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
-    gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    gdkPaintable = GObject.Property(type=Gdk.Paintable) #Gdk.Paintable
+    gdkPaintableBytes = GObject.Property(type=GLib.Bytes)
     title = GObject.Property(type=str)
     album = GObject.Property(type=str)
     artist = GObject.Property(type=str)

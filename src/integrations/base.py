@@ -31,17 +31,13 @@ class Base(GObject.Object):
         print('WARNING', 'get_stream_url', 'not implemented')
         return ""
 
-    def getRadioCoverArtWithBytes(self, id:str=None) -> tuple:
-        print('WARNING', 'getRadioCoverArtWithBytes', 'not implemented')
+    def getRadioCoverArt(self, id:str=None) -> tuple:
+        print('WARNING', 'getRadioCoverArt', 'not implemented')
         return None, None
 
-    def getCoverArtWithBytes(self, id:str=None) -> tuple:
-        print('WARNING', 'getCoverArtWithBytes', 'not implemented')
-        return None, None
-
-    def getCoverArt(self, id:str=None) -> Gdk.Paintable | None:
+    def getCoverArt(self, id:str=None) -> tuple:
         print('WARNING', 'getCoverArt', 'not implemented')
-        return None
+        return None, None
 
     def ping(self) -> bool:
         print('WARNING', 'ping', 'not implemented')

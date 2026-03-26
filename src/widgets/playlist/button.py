@@ -27,20 +27,15 @@ class PlaylistButton(Gtk.Box):
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)
-        integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+        integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
-    def update_cover(self, coverArt:str=None):
-        def update():
-            integration = get_current_integration()
-            paintable = integration.getCoverArt(self.id)
-            if paintable:
-                GLib.idle_add(self.cover_el.set_from_paintable, paintable)
-                GLib.idle_add(self.cover_el.set_pixel_size, 240)
-            else:
-                GLib.idle_add(self.cover_el.set_from_icon_name, "playlist-symbolic")
-                GLib.idle_add(self.cover_el.set_pixel_size, -1)
-        if coverArt:
-            threading.Thread(target=update).start()
+    def update_cover(self, paintable:Gdk.Paintable=None):
+        if paintable:
+            self.cover_el.set_from_paintable(paintable)
+            self.cover_el.set_pixel_size(240)
+        else:
+            self.cover_el.set_from_icon_name("music-note-symbolic")
+            self.cover_el.set_pixel_size(-1)
 
     def update_name(self, name:str):
         self.name_el.set_tooltip_text(name)

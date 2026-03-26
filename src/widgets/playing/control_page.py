@@ -246,9 +246,9 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
-            raw_bytes, paintable = integration.getCoverArtWithBytes(song_id)
-            if raw_bytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
-                threading.Thread(target=self.update_palette, args=(raw_bytes,)).start()
+            gbytes, paintable = integration.getCoverArt(song_id)
+            if gbytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
+                threading.Thread(target=self.update_palette, args=(bytes(gbytes.get_data()),)).start()
             else:
                 GLib.idle_add(self.get_root().remove_css_class, 'dynamic-accent-bg')
             if paintable:

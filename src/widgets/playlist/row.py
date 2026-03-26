@@ -22,7 +22,7 @@ class PlaylistRow(Adw.ActionRow):
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)
-        integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+        integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         settings.bind(
@@ -32,18 +32,13 @@ class PlaylistRow(Adw.ActionRow):
             Gio.SettingsBindFlags.DEFAULT
         )
 
-    def update_cover(self, coverArt:str=None):
-        def update():
-            integration = get_current_integration()
-            paintable = integration.getCoverArt(self.id)
-            if paintable:
-                GLib.idle_add(self.cover_el.set_from_paintable, paintable)
-                GLib.idle_add(self.cover_el.set_pixel_size, 48)
-            else:
-                GLib.idle_add(self.cover_el.set_from_icon_name, "playlist-symbolic")
-                GLib.idle_add(self.cover_el.set_pixel_size, -1)
-        if coverArt:
-            threading.Thread(target=update).start()
+    def update_cover(self, paintable:Gdk.Paintable=None):
+        if paintable:
+            self.cover_el.set_from_paintable(paintable)
+            self.cover_el.set_pixel_size(48)
+        else:
+            self.cover_el.set_from_icon_name("music-note-symbolic")
+            self.cover_el.set_pixel_size(-1)
 
     def update_name(self, name:str):
         self.set_title(GLib.markup_escape_text(name))

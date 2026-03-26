@@ -24,18 +24,13 @@ class ArtistButton(Gtk.Button):
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'albumCount', self.update_album_count)
-        integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+        integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
-    def update_cover(self, coverArt:str=None):
-        def update():
-            integration = get_current_integration()
-            paintable = integration.getCoverArt(self.id)
-            if paintable:
-                GLib.idle_add(self.avatar_el.set_custom_image, paintable)
-            else:
-                GLib.idle_add(self.avatar_el.set_custom_image, None)
-        if coverArt:
-            threading.Thread(target=update).start()
+    def update_cover(self, paintable:Gdk.Paintable=None):
+        if paintable:
+            self.avatar_el.set_custom_image(paintable)
+        else:
+            self.avatar_el.set_custom_image(None)
 
     def update_name(self, name:str):
         self.avatar_el.set_tooltip_text(name)

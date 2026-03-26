@@ -27,22 +27,17 @@ class AlbumButton(Gtk.Box):
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'artist', self.update_artist)
         integration.connect_to_model(self.id, 'artistId', self.update_artist_id, use_gtk_thread=False)
-        integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+        integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
 
         threading.Thread(target=self.update_cover).start()
 
-    def update_cover(self, coverArt:str=None):
-        def update():
-            integration = get_current_integration()
-            paintable = integration.getCoverArt(self.id)
-            if paintable:
-                GLib.idle_add(self.cover_el.set_from_paintable, paintable)
-                GLib.idle_add(self.cover_el.set_pixel_size, 240)
-            else:
-                GLib.idle_add(self.cover_el.set_from_icon_name, "music-queue-symbolic")
-                GLib.idle_add(self.cover_el.set_pixel_size, -1)
-        if coverArt:
-            threading.Thread(target=update).start()
+    def update_cover(self, paintable:Gdk.Paintable=None):
+        if paintable:
+            self.cover_el.set_from_paintable(paintable)
+            self.cover_el.set_pixel_size(240)
+        else:
+            self.cover_el.set_from_icon_name("music-queue-symbolic")
+            self.cover_el.set_pixel_size(-1)
 
     def update_name(self, name:str):
         self.name_el.get_child().set_label(name)

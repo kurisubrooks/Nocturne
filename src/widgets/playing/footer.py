@@ -51,7 +51,7 @@ class PlayingFooter(Gtk.Overlay):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
-            paintable = integration.getCoverArt(song_id)
+            gbytes, paintable = integration.getCoverArt(song_id)
             if paintable:
                 GLib.idle_add(self.cover_el.set_from_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_pixel_size, 48)
