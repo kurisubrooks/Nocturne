@@ -28,6 +28,7 @@ class PlayingControlPage(Adw.NavigationPage):
     volume_el = Gtk.Template.Child()
     state_stack_el = Gtk.Template.Child()
     mode_button_el = Gtk.Template.Child()
+    pause_next_change = False
 
     def __init__(self):
         # Used to disconnect star_el when song changes
