@@ -340,3 +340,16 @@ CONTEXT_SONG = {
     }
 }
 
+CONTEXT_SERVER = {
+    "update": {
+        "name": _("Update Server"),
+        "icon-name": "update-symbolic",
+        "action-name": "app.update_navidrome_server"
+    },
+    "delete": {
+        "name": _("Delete Server"),
+        "css": ["error"],
+        "icon-name": "user-trash-symbolic",
+        "action-name": "app.delete_navidrome_server"
+    }
+}

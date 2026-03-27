@@ -3,13 +3,14 @@
 from gi.repository import Gtk, Adw, Gio, GLib
 from ...integrations import secret, set_current_integration, Navidrome, Local
 from ...constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, DEFAULT_MUSIC_DIR
+from ..containers import ContextContainer
 import threading, subprocess
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/login.ui')
 class LoginPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneLoginPage'
 
-    integrated_server_button_el = Gtk.Template.Child()
+    extra_menu_el = Gtk.Template.Child()
     status_page = Gtk.Template.Child()
     url_el = Gtk.Template.Child()
     user_el = Gtk.Template.Child()
@@ -57,6 +58,11 @@ class LoginPage(Adw.NavigationPage):
 
         # Login Button
         self.login_button_el.set_title(metadata.get('login-label') or _("Login"))
+
+        # Extra Menu
+        self.extra_menu_el.set_visible('extra-menu' in metadata)
+        self.extra_menu_el.set_tooltip_text(metadata.get('extra-menu', {}).get('title', _("Extra Menu")))
+        self.extra_menu_el.get_popover().set_child(ContextContainer(metadata.get('extra-menu', {}).get('context', {}), ''))
 
     @Gtk.Template.Callback()
     def library_changed(self, row, gparam):

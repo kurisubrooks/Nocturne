@@ -61,7 +61,7 @@ class SetupPage(Adw.NavigationPage):
             GLib.idle_add(self.downloading_status_page.set_description, _("Installing"))
             with tarfile.open(download_path, "r:gz") as tar:
                 tar.extractall(path=BASE_NAVIDROME_DIR, filter='fully_trusted')
-            if self.instance.start_instance():
+            if self.integration.start_instance():
                 GLib.idle_add(self.main_stack.set_visible_child_name, 'success')
                 if os.path.isfile(download_path):
                     os.remove(download_path)
@@ -82,6 +82,5 @@ class SetupPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def continue_clicked(self, button):
-        self.instance.terminate_instance() # Just so that the library_directory can be changed
         self.get_root().main_stack.set_visible_child_name('login')
         self.get_root().login_page.setup_page(self.integration)

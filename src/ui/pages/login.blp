@@ -16,10 +16,10 @@ template $NocturneLoginPage: Adw.NavigationPage {
       }
 
       [start]
-      Gtk.MenuButton integrated_server_button_el {
+      Gtk.MenuButton extra_menu_el {
         icon-name: "preferences-system-symbolic";
         tooltip-text: _("Manage Navidrome Server");
-        menu-model: server_menu;
+        popover: Gtk.Popover {};
       }
 
       show-title: false;
@@ -78,18 +78,4 @@ template $NocturneLoginPage: Adw.NavigationPage {
       };
     };
   };
-}
-
-menu server_menu {
-  section {
-    item {
-      label: _("Delete Server");
-      action: "app.delete_navidrome_server";
-    }
-
-    item {
-      label: _("Update Server");
-      action: "app.update_navidrome_server";
-    }
-  }
 }

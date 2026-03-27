@@ -1,10 +1,10 @@
 # navidrome.py
 
-from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
+from gi.repository import Gtk, Adw, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
-from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env
+from ..constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, CONTEXT_SERVER
 from .base import Base
-import requests, random, threading, favicon, io, subprocess, time
+import requests, random, threading, favicon, io, subprocess, shutil, os
 from PIL import Image
 
 class Navidrome(Base):
@@ -439,7 +439,11 @@ class NavidromeIntegrated(Navidrome):
         'title': _("Navidrome Managed"),
         'entries': ['library-dir', 'user', 'password'],
         'link': 'http://127.0.0.1:4534',
-        'link-label': _("Instance Website")
+        'link-label': _("Instance Website"),
+        'extra-menu': {
+            'title': _("Manage Server"),
+            'context': CONTEXT_SERVER
+        }
     }
     button_metadata = {
         'title': _("Managed Server"),
@@ -451,6 +455,7 @@ class NavidromeIntegrated(Navidrome):
     def __init__(self):
         super().__init__()
         self.set_property('url', 'http://127.0.0.1:4534')
+        self.set_property('library_dir', Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("integration-library-dir").unpack())
 
     def check_if_ready(self, row) -> bool:
         if get_navidrome_path():

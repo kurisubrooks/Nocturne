@@ -50,6 +50,7 @@
     <file alias="icons/scalable/status/grid-filled-symbolic.svg">icons/grid-filled-symbolic.svg</file>
     <file alias="icons/scalable/status/view-list-bullet-symbolic.svg">icons/view-list-bullet-symbolic.svg</file>
     <file alias="icons/scalable/status/folder-open-symbolic.svg">icons/folder-open-symbolic.svg</file>
+    <file alias="icons/scalable/status/update-symbolic.svg">icons/update-symbolic.svg</file>
 
     <file alias="window.ui">ui/window.ui</file>
     <file alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>
