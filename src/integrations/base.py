@@ -23,11 +23,11 @@ class Base(GObject.Object):
         # do not modify this function, it works as is in any instance
         connection_id = ""
         if id in self.loaded_models:
-            connection_id = self.loaded_models[id].connect(
+            connection_id = self.loaded_models.get(id).connect(
                 'notify::{}'.format(parameter),
-                lambda *_, parameter=parameter, id=id: GLib.idle_add(callback, self.loaded_models[id].get_property(parameter))
+                lambda *_, parameter=parameter, id=id: GLib.idle_add(callback, self.loaded_models.get(id).get_property(parameter))
             )
-            GLib.idle_add(callback, self.loaded_models[id].get_property(parameter))
+            GLib.idle_add(callback, self.loaded_models.get(id).get_property(parameter))
         return connection_id
 
     def start_instance(self) -> bool:
