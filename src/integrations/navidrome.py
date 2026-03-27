@@ -102,16 +102,12 @@ class Navidrome(Base):
                     return self.getRadioCoverArt(id)
                 if isinstance(model, models.Song) and model.isExternalFile:
                     return local.Local.getCoverArt(self, id)
-                coverArtId = ""
                 if model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
-                coverArtId = model.coverArt
-                if not coverArtId:
-                    return None, None
 
                 params = {
                     **self.get_base_params(),
-                    'id': coverArtId,
+                    'id': model.id,
                     'size': 480
                 }
                 response = requests.get(self.get_url('getCoverArt'), params=params)
