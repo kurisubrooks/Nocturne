@@ -71,8 +71,8 @@ class Navidrome(Base):
                     return self.getRadioCoverArt(id)
                 if isinstance(model, models.Song) and model.isExternalFile:
                     return local.Local.getCoverArt(self, id)
-                if model.gdkPaintable:
-                    return model.gdkPaintableBytes, model.gdkPaintable
+                if model.get_property('gdkPaintable'):
+                    return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
                 params = {
                     **self.get_base_params(),

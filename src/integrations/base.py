@@ -164,7 +164,7 @@ class Base(GObject.Object):
         # returns a dict with results trucated with the count and offset, the dict has keys for album, artist and song, the values are lists of IDs
         # for an example view local.py
         print('WARNING', 'search', 'not implemented')
-        return {}
+        return {'artist': {}, 'album': {}, 'song': {}}
 
     def getInternetRadioStations(self) -> list:
         # returns a list of Song IDs with the property isRadio=True

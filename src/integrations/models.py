@@ -69,7 +69,6 @@ class Playlist(GObject.Object):
     name = GObject.Property(type=str)
     songCount = GObject.Property(type=int)
     duration = GObject.Property(type=int)
-    owner = GObject.Property(type=str)
     readonly = GObject.Property(type=bool, default=False)
     entry = GObject.Property(type=GObject.TYPE_PYOBJECT) #list
     path = GObject.Property(type=str) # For use in Local
