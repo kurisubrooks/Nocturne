@@ -330,28 +330,27 @@ class Navidrome(Base):
                     id=radio.get('id'),
                     title=radio.get('name'),
                     streamUrl=radio.get('streamUrl'),
-                    homePageUrl=radio.get('homePageUrl'),
                     duration=-1,
                     isRadio=True
                 )
         return [radio.get('id') for radio in radios]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
         # returns true if ok
         response = self.make_request('createInternetRadioStation', {
             'name': name,
             'streamUrl': streamUrl,
-            'homepageUrl': homePageUrl
+            'homepageUrl': '{}://{}'.format(streamUrl.scheme, streamUrl.netloc)
         })
         return response.get('status') == 'ok'
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
         # returns true if ok
         response = self.make_request('updateInternetRadioStation', {
             'id': id,
             'name': name,
             'streamUrl': streamUrl,
-            'homepageUrl': homePageUrl
+            'homepageUrl': '{}://{}'.format(streamUrl.scheme, streamUrl.netloc)
         })
         return response.get('status') == 'ok'
 

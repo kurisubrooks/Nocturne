@@ -103,7 +103,6 @@ class Local(Base):
                 id=radio_id,
                 title=radio.get('name'),
                 streamUrl=radio.get('streamUrl'),
-                homePageUrl=radio.get('homePageUrl'),
                 duration=-1,
                 isRadio=True
             )
@@ -345,7 +344,7 @@ class Local(Base):
     def getInternetRadioStations(self) -> list:
         return [id for id in list(self.loaded_models) if id.startswith('RADIO:')]
 
-    def createInternetRadioStation(self, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
         RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
         try:
             with open(RADIOFILE, 'r') as f:
@@ -358,15 +357,13 @@ class Local(Base):
         radio_id = str(uuid.uuid4())
         radio_dict[radio_id] = {
             'name': name,
-            'streamUrl': streamUrl,
-            'homePageUrl': homePageUrl
+            'streamUrl': streamUrl
         }
 
         self.loaded_models[radio_id] = models.Song(
             id=radio_id,
             title=name,
             streamUrl=streamUrl,
-            homePageUrl=homePageUrl,
             duration=-1,
             isRadio=True
         )
@@ -376,7 +373,7 @@ class Local(Base):
 
         return True
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
         RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
         try:
             with open(RADIOFILE, 'r') as f:
@@ -388,13 +385,11 @@ class Local(Base):
 
         radio_dict[id] = {
             'name': name,
-            'streamUrl': streamUrl,
-            'homePageUrl': homePageUrl
+            'streamUrl': streamUrl
         }
         if model := self.loaded_models.get(id):
             model.set_property('name', name)
             model.set_property('streamUrl', streamUrl)
-            model.set_property('homePageUrl', homePageUrl)
 
         with open(RADIOFILE, 'w') as f:
             json.dump(radio_dict, f, ensure_ascii=False)

@@ -32,8 +32,8 @@ class PlayingFooter(Gtk.Overlay):
             else:
                 self.artist_el.set_label('')
             if song.get_property('isRadio'):
-                if song.get_property('homePageUrl'):
-                    self.artist_el.set_label(urlparse(song.get_property('homePageUrl')).netloc.capitalize())
+                if song.get_property('streamUrl'):
+                    self.artist_el.set_label(urlparse(song.get_property('streamUrl')).netloc.capitalize())
                 else:
                     self.artist_el.set_label("")
             self.artist_el.set_visible(self.artist_el.get_label())

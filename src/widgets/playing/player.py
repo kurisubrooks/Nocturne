@@ -63,7 +63,7 @@ class PlayerAdapter(MprisAdapter):
         return MetadataObj(
             album=song.get_property('album'),
             art_url='file://{}'.format(MPRIS_COVER_PATH),
-            artists=[urlparse(song.get_property('homePageUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('homePageUrl') else [a.get('name') for a in song.get_property('artists')],
+            artists=[urlparse(song.get_property('streamUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('streamUrl') else [a.get('name') for a in song.get_property('artists')],
             as_text=[song.get_property('title')],
             length=song.get_property('duration')*1000000,
             title=self.player.control_page.title_el.get_label() if song.get_property('isRadio') else song.get_property('title'), # So it uses dynamic radio titles

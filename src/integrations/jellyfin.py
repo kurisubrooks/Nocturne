@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
 from ..constants import get_pc_name
 from .base import Base
-import requests, subprocess, random, threading
+import requests, subprocess, random, threading, base64
 
 class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
@@ -80,6 +80,12 @@ class Jellyfin(Base):
             pass
         return {}
 
+    def refresh_library(self):
+        self.make_request(
+            action='ScheduledTasks/Running/6739958999814421481e05001648981b',
+            mode="POST"
+        )
+
     # ----------- #
 
     def start_instance(self) -> bool:
@@ -99,8 +105,6 @@ class Jellyfin(Base):
     def getCoverArt(self, id:str=None) -> tuple:
         if id:
             if model := self.loaded_models.get(id):
-                if isinstance(model, models.Song) and model.isRadio:
-                    return self.getRadioCoverArt(id)
                 if isinstance(model, models.Song) and model.isExternalFile:
                     return local.Local.getCoverArt(self, id)
                 if model.get_property('gdkPaintable') is not None:
@@ -447,3 +451,56 @@ class Jellyfin(Base):
             mode='DELETE'
         )
         return not response.get('IsFavorite', False)
+
+    def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
+        #TODO
+        return {
+            'artist': [],
+            'album': [],
+            'song': self.getInternetRadioStations()
+        }
+
+    def getInternetRadioStations(self) -> list:
+        radios = self.make_request(
+            action='LiveTv/Channels',
+            mode='GET',
+            params={
+                "userId": self.get_property("userId"),
+                "type": "Radio"
+            }
+        ).get('Items', [])
+
+        id_list = []
+        for radio in radios:
+            radio_model = models.Song(
+                id=radio.get("Id"),
+                title=radio.get("Name"),
+                duration=-1,
+                isRadio=True
+            )
+            self.loaded_models[radio.get("Id")] = radio_model
+            id_list.append(radio.get("Id"))
+
+        return id_list
+
+    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
+        m3u_content = f"#EXTINF:0,{name}\n{streamUrl}"
+        radio = self.make_request(
+            action='LiveTv/TunerHosts',
+            mode='POST',
+            json={
+                "Url": streamUrl,
+                "Type": "M3U",
+                "FriendlyName": name
+            }
+        )
+        if radio.get('Id'):
+            self.loaded_models[radio.get("Id")] = models.Song(
+                id=radio.get("Id"),
+                title=radio.get("FriendlyName"),
+                duration=-1,
+                isRadio=True
+            )
+            self.refresh_library()
+            return True
+        return False

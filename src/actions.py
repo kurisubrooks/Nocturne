@@ -133,25 +133,22 @@ def update_radio(window, id:str=""):
     integration = get_current_integration()
     model = integration.loaded_models.get(id) if id else None
 
-    def response(dialog, task, name_el, stream_el, homepage_el, id:str):
+    def response(dialog, task, name_el, stream_el, id:str):
         if dialog.choose_finish(task) == 'save':
             name = name_el.get_text()
             stream = stream_el.get_text()
-            homepage = homepage_el.get_text()
-            if name and stream and homepage:
+            if name and stream:
                 integration = get_current_integration()
                 if id:
                     result = integration.updateInternetRadioStation(
                         id,
                         name,
-                        stream,
-                        homepage
+                        stream
                     )
                 else:
                     result = integration.createInternetRadioStation(
                         name,
-                        stream,
-                        homepage
+                        stream
                     )
                 if result:
                     toast = Adw.Toast(
@@ -162,7 +159,6 @@ def update_radio(window, id:str=""):
                     if id:
                         model.set_property('title', name)
                         model.set_property('streamUrl', stream)
-                        model.set_property('homePageUrl', homepage)
                     else:
                         threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
                     return
@@ -184,10 +180,6 @@ def update_radio(window, id:str=""):
     if model and model.get_property('isRadio'):
         stream_el.set_text(model.get_property('streamUrl'))
     list_box.append(stream_el)
-    homepage_el = Adw.EntryRow(title=_("Homepage Url"))
-    if model and model.get_property('isRadio'):
-        homepage_el.set_text(model.get_property('homePageUrl'))
-    list_box.append(homepage_el)
 
     dialog = Adw.AlertDialog(
         heading=_("Update Radio Station") if id else _("Add Radio Station"),
@@ -196,7 +188,7 @@ def update_radio(window, id:str=""):
     dialog.add_response("cancel", _("Cancel"))
     dialog.add_response("save", _("Save"))
     dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
-    dialog.choose(window, None, response, name_el, stream_el, homepage_el, id)
+    dialog.choose(window, None, response, name_el, stream_el, id)
 
 def add_radio(window):
     update_radio(window)

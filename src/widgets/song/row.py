@@ -38,7 +38,7 @@ class SongRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'duration', self.update_duration)
         integration.connect_to_model(self.id, 'starred', self.update_starred)
-        integration.connect_to_model(self.id, 'homePageUrl', self.update_homepage) # for radios
+        integration.connect_to_model(self.id, 'streamUrl', self.update_streamUrl) # for radios
         integration.connect_to_model(self.id, 'isExternalFile', self.update_is_external)
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
@@ -140,18 +140,19 @@ class SongRow(Adw.ActionRow):
             self.star_el.set_icon_name('non-starred-symbolic')
             self.star_el.set_tooltip_text(_('Star'))
 
-    def update_homepage(self, homepage:str):
-        if homepage:
+    def update_streamUrl(self, streamUrl:str):
+        if streamUrl := urlparse(streamUrl):
+            homepage_url = '{}://{}'.format(streamUrl.scheme, streamUrl.netloc)
             button = Gtk.Button(
                 action_name = 'app.visit_url',
-                action_target = GLib.Variant.new_string(homepage),
+                action_target = GLib.Variant.new_string(homepage_url),
                 child = Gtk.Label(
                     ellipsize=Pango.EllipsizeMode.END,
-                    label=urlparse(homepage).netloc.capitalize(),
+                    label=urlparse(homepage_url).netloc.capitalize(),
                     css_classes=['subtitle']
                 ),
                 css_classes = ['p0', 'flat'],
-                tooltip_text=homepage
+                tooltip_text=homepage_url
             )
             self.artist_container_el.set_child(button)
 

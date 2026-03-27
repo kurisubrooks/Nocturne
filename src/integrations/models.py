@@ -106,7 +106,6 @@ class Song(GObject.Object):
     # --RADIO--
     isRadio = GObject.Property(type=bool, default=False)
     streamUrl = GObject.Property(type=str)
-    homePageUrl = GObject.Property(type=str)
     # ---------
 
     path = GObject.Property(type=str) # For use in Local

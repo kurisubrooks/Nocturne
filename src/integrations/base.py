@@ -2,7 +2,9 @@
 
 from gi.repository import Gtk, GLib, GObject, Gdk
 from . import models
-import requests
+import requests, favicon, io
+from PIL import Image
+from urllib.parse import urlparse
 
 # DO NOT USE DIRECTLY
 class Base(GObject.Object):
@@ -54,8 +56,8 @@ class Base(GObject.Object):
             if model := self.loaded_models.get(id):
                 if model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
-                if model.homePageUrl:
-                    icons = favicon.get(model.homePageUrl)
+                if streamUrl := urlparse(model.get_property('streamUrl')):
+                    icons = favicon.get('{}://{}'.format(streamUrl.scheme, streamUrl.netloc))
                     if len(icons) > 0:
                         try:
                             response = requests.get(icons[0].url, timeout=5)
@@ -172,12 +174,12 @@ class Base(GObject.Object):
         print('WARNING', 'getInternetRadioStations', 'not implemented')
         return []
 
-    def createInternetRadioStation(self, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
         # returns True if created successfully
         print('WARNING', 'createInternetRadioStation', 'not implemented')
         return False
 
-    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str, homePageUrl:str) -> bool:
+    def updateInternetRadioStation(self, id:str, name:str, streamUrl:str) -> bool:
         # returns True if updated successfully
         print('WARNING', 'updateInternetRadioStation', 'not implemented')
         return False

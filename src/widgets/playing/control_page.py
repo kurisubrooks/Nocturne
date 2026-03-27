@@ -149,11 +149,13 @@ class PlayingControlPage(Adw.NavigationPage):
         self.title_el.set_tooltip_text(model.get_property('title'))
 
         # HomePage (radio)
-        if model.get_property('isRadio') and model.get_property('homePageUrl'):
-            self.radio_homepage_el.get_child().set_label(urlparse(model.get_property('homePageUrl')).netloc.capitalize())
-            self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.get_property('homePageUrl')))
-            self.radio_homepage_el.set_tooltip_text(model.get_property('homePageUrl'))
-        self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('homePageUrl'))
+        if model.get_property('isRadio') and model.get_property('streamUrl'):
+            stream_url = urlparse(model.get_property('streamUrl'))
+            homepage_url = '{}://{}'.format(stream_url.scheme, stream_url.netloc)
+            self.radio_homepage_el.get_child().set_label(stream_url.netloc.capitalize())
+            self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(homepage_url))
+            self.radio_homepage_el.set_tooltip_text(homepage_url)
+        self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('streamUrl'))
 
         # Timestamp (radio)
         self.positive_progress_el.set_visible(not model.get_property('isRadio'))
