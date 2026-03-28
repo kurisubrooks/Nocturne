@@ -7,7 +7,7 @@
   <name>Nocturne</name>
   <summary>Bring your music library together</summary>
   <description>
-    <p>A modern Navidrome / Subsonic client</p>
+    <p>A modern Navidrome / Jellyfin client</p>
     <p>Features</p>
     <ul>
       <li>Exploration by songs, artists, albums, radios and playlists</li>
@@ -87,7 +87,7 @@
       <description translate="no">
         <p>New</p>
         <ul>
-          <li>Added compatibility with Jellyfin</li>
+          <li>Added compatibility with Jellyfin (Experimental)</li>
           <li>Give user the option to change local directory</li>
           <li>Better login experience</li>
           <li>Changed how radios are handled</li>
