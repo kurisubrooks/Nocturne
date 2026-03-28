@@ -6,7 +6,8 @@ from .base import Base
 from datetime import datetime, timezone
 import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass
 from PIL import Image
-from mutagen import File, ID3
+from mutagen import File
+from mutagen.id3 import ID3
 from ..constants import LOCAL_DATA_DIR, get_song_info_from_file
 
 class Local(Base):
@@ -347,7 +348,7 @@ class Local(Base):
                                 'content': lines
                             }
                 if plain_lyrics := audio_file.getall("USLT"):
-                    if content := plain_lyrics[0].text
+                    if content := plain_lyrics[0].text:
                         return {
                             'type': 'plain',
                             'content': content
