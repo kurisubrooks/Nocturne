@@ -70,17 +70,6 @@ def get_lyrics(song_id:str, lrclib_download:bool) -> dict:
     lrc_path = os.path.join(lyrics_dir, file_name_without_ext+'.lrc')
     plain_lyrics_path = os.path.join(lyrics_dir, file_name_without_ext+'.txt')
 
-    if not lrclib_download:
-        result = integration.getLyrics(song_id)
-        if result.get('type') != 'not-found':
-            if result.get('type') == 'lrc':
-                with open(lrc_path, 'w+') as f:
-                    f.write(list_to_lrc_str(result.get('content')))
-            elif result.get('type') == 'plain':
-                with open(plain_lyrics_path, 'w+') as f:
-                    f.write(result.get('content'))
-            return result
-
     if os.path.isfile(lrc_path):
         with open(lrc_path, 'r') as f:
             return {'type': 'lrc', 'content': prepare_lrc(f.read())}
@@ -92,6 +81,17 @@ def get_lyrics(song_id:str, lrclib_download:bool) -> dict:
                 return {'type': 'instrumental', 'content': None}
             else:
                 return {'type': 'plain', 'content': content}
+
+    if not lrclib_download:
+        result = integration.getLyrics(song_id)
+        if result.get('type') != 'not-found':
+            if result.get('type') == 'lrc':
+                with open(lrc_path, 'w+') as f:
+                    f.write(list_to_lrc_str(result.get('content')))
+            elif result.get('type') == 'plain':
+                with open(plain_lyrics_path, 'w+') as f:
+                    f.write(result.get('content'))
+            return result
 
     if not lrclib_download:
         return {'type': 'not-found-locally', 'content': None}
