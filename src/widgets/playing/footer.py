@@ -61,18 +61,3 @@ class PlayingFooter(Gtk.Overlay):
                 GLib.idle_add(self.cover_el.set_from_icon_name, 'music-note-symbolic')
                 GLib.idle_add(self.cover_el.set_pixel_size, -1)
 
-    @Gtk.Template.Callback()
-    def play_clicked(self, button):
-        self.get_root().playing_page.play_clicked(button)
-
-    @Gtk.Template.Callback()
-    def pause_clicked(self, button):
-        self.get_root().playing_page.pause_clicked(button)
-
-    @Gtk.Template.Callback()
-    def next_clicked(self, button):
-        self.get_root().playing_page.next_clicked(button)
-
-    @Gtk.Template.Callback()
-    def previous_clicked(self, button):
-        self.get_root().playing_page.previous_clicked(button)

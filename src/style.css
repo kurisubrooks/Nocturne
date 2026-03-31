@@ -111,9 +111,26 @@ overlay.album-button:hover image.card {
   );
 }
 
-window.popout-window .sidebar-pane,
+window.popout-window .sidebar-pane {
+  background: transparent;
+}
 bottom-sheet#main-bottom-sheet sheet .sidebar-pane {
   background: color-mix(in srgb, var(--sidebar-bg-color) 10%, transparent);
+}
+
+window.popout-window .fullscreen-bottom-bar {
+  backdrop-filter: blur(10px);
+  padding: 20px;
+}
+
+window.popout-window.fullscreen .fullscreen-bottom-bar button {
+  padding: 8px;
+  -gtk-icon-size: 18px;
+}
+
+window.popout-window.fullscreen .fullscreen-bottom-bar button.color {
+  padding: 12px;
+  -gtk-icon-size: 24px;
 }
 
 window.popout-window.player-blur,
@@ -125,6 +142,19 @@ window.player-blur bottom-sheet#main-bottom-sheet sheet.background {
 window.popout-window,
 window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {
   transition: background .2s;
+}
+
+window.popout-window.fullscreen navigation-split-view > .sidebar-pane {
+	box-shadow: none;
+}
+
+window.popout-window.fullscreen navigation-view-page toolbarview stack scrolledwindow > * > *{
+  padding-top: 45px;
+}
+
+window.popout-window.fullscreen .view_box,
+window.popout-window.fullscreen navigation-view-page > toolbarview stack > scrolledwindow > * > * {
+  padding-bottom: 132px;
 }
 
 toast {

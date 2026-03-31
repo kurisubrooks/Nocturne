@@ -111,7 +111,7 @@ class Jellyfin(Base):
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
                 params = {
-                    'maxWidth': 480,
+                    'maxWidth': 720,
                     'quality': 90
                 }
                 response = requests.get(

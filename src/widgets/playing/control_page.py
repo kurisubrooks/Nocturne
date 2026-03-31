@@ -63,6 +63,7 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def breakpoint_toggled(self, active:bool):
         self.show_sidebar_el.set_visible(active)
+        self.pop_status_stack.set_visible(not active)
         if isinstance(self.get_parent(), Adw.NavigationView) and not self.get_parent().get_vhomogeneous():
             self.get_parent().set_vhomogeneous(True)
 
@@ -90,22 +91,6 @@ class PlayingControlPage(Adw.NavigationPage):
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
             )
-
-    @Gtk.Template.Callback()
-    def play_clicked(self, button):
-        self.player.gst.set_state(Gst.State.PLAYING)
-
-    @Gtk.Template.Callback()
-    def pause_clicked(self, button):
-        self.player.gst.set_state(Gst.State.PAUSED)
-
-    @Gtk.Template.Callback()
-    def next_clicked(self, button):
-        self.player.handle_song_change_request("next")
-
-    @Gtk.Template.Callback()
-    def previous_clicked(self, button):
-        self.player.handle_song_change_request("previous")
 
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
@@ -222,25 +207,16 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        @media (prefers-color-scheme: dark) {{
-            window.popout-window,
-            window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
-                background-image: linear-gradient(
-                    to bottom right,
-                    rgba({','.join([str(c) for c in palette[0]])},0.3),
-                    rgba({','.join([str(c) for c in palette[1]])},0.3)
-                );
-            }}
+        window.popout-window,
+        window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
+            background-image: linear-gradient(
+                to bottom right,
+                rgba({','.join([str(c) for c in palette[0]])},0.3),
+                rgba({','.join([str(c) for c in palette[1]])},0.3)
+            );
         }}
-        @media (prefers-color-scheme: light) {{
-            window.popout-window,
-            window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
-                background-image: linear-gradient(
-                    to bottom right,
-                    rgba({','.join([str(c) for c in palette[0]])},0.3),
-                    rgba({','.join([str(c) for c in palette[1]])},0.3)
-                );
-            }}
+        window.popout-window .fullscreen-bottom-bar {{
+            background-color: color-mix(in srgb, var(--window-bg-color) 70%, rgba({','.join([str(c) for c in palette[0]])}, 0.25));
         }}
         .dynamic-accent-bg {{
             transition: background-image 0.5s ease-in-out;

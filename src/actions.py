@@ -4,7 +4,7 @@ from .integrations import get_current_integration
 import random, threading, os, shutil
 from datetime import datetime, UTC
 from . import widgets as Widgets
-from gi.repository import Gio, Adw, Gtk, GLib
+from gi.repository import Gio, Adw, Gtk, GLib, Gst
 from .constants import DATA_DIR, BASE_NAVIDROME_DIR
 
 # -- HELPER --
@@ -159,6 +159,21 @@ def close_popout_window(window):
         if len(window.queue_page.song_list_el.get_all_ids()) > 0:
             window.main_bottom_sheet.set_open(True)
         window.get_application().popout_window = None
+
+
+# -- PLAYER --
+
+def player_play(window):
+    window.playing_page.player.gst.set_state(Gst.State.PLAYING)
+
+def player_pause(window):
+    window.playing_page.player.gst.set_state(Gst.State.PAUSED)
+
+def player_next(window):
+    window.playing_page.player.handle_song_change_request("next")
+
+def player_previous(window):
+    window.playing_page.player.handle_song_change_request("previous")
 
 # -- RADIO --
 
