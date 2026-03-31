@@ -207,6 +207,9 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
+        window.dynamic-accent-bg {{
+            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
+        }}
         window.popout-window,
         window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
             background-image: linear-gradient(
@@ -216,7 +219,7 @@ class PlayingControlPage(Adw.NavigationPage):
             );
         }}
         window.popout-window .fullscreen-bottom-bar {{
-            background-color: color-mix(in srgb, var(--window-bg-color) 70%, rgba({','.join([str(c) for c in palette[0]])}, 0.25));
+            background-color: color-mix(in srgb, var(--window-bg-color) 50%, rgba({','.join([str(c) for c in palette[0]])}, 0.25));
         }}
         .dynamic-accent-bg {{
             transition: background-image 0.5s ease-in-out;
