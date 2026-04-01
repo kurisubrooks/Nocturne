@@ -255,12 +255,18 @@ class PlayingControlPage(Adw.NavigationPage):
             if paintable:
                 GLib.idle_add(self.cover_el.set_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_visible, True)
-                paintable.save_to_png(MPRIS_COVER_PATH)
+                try:
+                    paintable.save_to_png(MPRIS_COVER_PATH)
+                except Exception:
+                    pass
             else:
                 GLib.idle_add(self.cover_el.set_paintable, None)
                 GLib.idle_add(self.cover_el.set_visible, False)
-                if os.path.isfile(MPRIS_COVER_PATH):
-                    os.remove(MPRIS_COVER_PATH)
+                try:
+                    if os.path.isfile(MPRIS_COVER_PATH):
+                        os.remove(MPRIS_COVER_PATH)
+                except Exception:
+                    pass
 
     def update_starred(self, starred:bool):
         if starred:
