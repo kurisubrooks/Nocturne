@@ -29,48 +29,246 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
 
   content: Adw.ToastOverlay toast_overlay{
     Gtk.Stack main_stack {
+      transition-type: crossfade;
+
       Gtk.StackPage {
         name: "content";
-        child: Adw.NavigationSplitView split_view {
-          sidebar-width-fraction: 0.5;
-          max-sidebar-width: 320;
+        child: Gtk.Overlay {
+          [overlay]
+          Gtk.Box bottom_bar {
+            styles [
+              "fullscreen-bottom-bar",
+              "card"
+            ]
+            hexpand: true;
+            valign: end;
+            orientation: vertical;
+            spacing: 10;
+            margin-start: 20;
+            margin-end: 20;
+            margin-bottom: 20;
+            visible: false;
+            Gtk.CenterBox {
+              orientation: horizontal;
 
-          sidebar: Adw.NavigationPage {
-            title: _("Player");
-            child: $NocturnePlayingControlPage playing_page {};
-          };
-          content: Adw.NavigationPage {
-            title: _("Song Details");
-            child: Adw.ToolbarView {
-              [top]
-              Adw.HeaderBar header {
-                title-widget: Adw.ViewSwitcher {
+              start-widget: Gtk.Box {
+                orientation: vertical;
+                spacing: 10;
+
+                Gtk.Label fs_title_el {
+                  styles [
+                    "title-1"
+                  ]
+                  ellipsize: end;
+                  xalign: 0;
+                }
+                Gtk.Label fs_album_el {
+                  styles [
+                    "title-2",
+                    "dim-label"
+                  ]
+                  ellipsize: end;
+                  xalign: 0;
+                }
+              };
+
+              center-widget: Gtk.Box {
+                orientation: horizontal;
+                spacing: 15;
+
+                Gtk.Button {
+                  icon-name: "media-skip-backward-symbolic";
+
+                  valign: center;
+                  action-name: "app.player_previous";
+                  tooltip-text: _("Previous");
+                  styles [
+                    "circular"
+                  ]
+                }
+
+                Gtk.Stack state_stack_el {
+                  transition-type: crossfade;
+
+                  Gtk.StackPage {
+                    name: "play";
+                    child: Gtk.Button {
+                      icon-name: "media-playback-start-symbolic";
+                      valign: center;
+                      action-name: "app.player_play";
+                      tooltip-text: _("Play");
+                      styles [
+                        "circular",
+                        "accent",
+                        "color"
+                      ]
+                    };
+                  }
+
+                  Gtk.StackPage {
+                    name: "pause";
+                    child: Gtk.Button {
+                      icon-name: "media-playback-pause-symbolic";
+                      valign: center;
+                      action-name: "app.player_pause";
+                      tooltip-text: _("Pause");
+                      styles [
+                        "circular",
+                        "accent",
+                        "color"
+                      ]
+                    };
+                  }
+                }
+
+                Gtk.Button {
+                  icon-name: "media-skip-forward-symbolic";
+                  valign: center;
+                  action-name: "app.player_next";
+                  tooltip-text: _("Next");
+                  styles [
+                    "circular"
+                  ]
+                }
+              };
+
+              end-widget: Gtk.Box {
+                orientation: vertical;
+                spacing: 10;
+
+                Gtk.Label fs_artist_el {
+                  styles [
+                    "title-1"
+                  ]
+                  ellipsize: end;
+                  xalign: 1;
+                  justify: right;
+                }
+                Gtk.Label fs_timestamp_el {
+                  styles [
+                    "title-2",
+                    "dim-label",
+                    "numeric"
+                  ]
+                  ellipsize: end;
+                  xalign: 1;
+                  justify: right;
+                }
+              };
+            }
+            Gtk.Scale fs_progress_el {
+              orientation: horizontal;
+              change-value => $progress_bar_changed();
+              adjustment: Gtk.Adjustment {
+                lower: 0;
+                upper: 1;
+                value: 0;
+              };
+              styles [
+                "p0"
+              ]
+              accessibility {
+                label: _("Current song progress bar");
+              }
+            }
+          }
+
+          child: Adw.NavigationSplitView split_view {
+            sidebar-width-fraction: 0.5;
+            max-sidebar-width: 320;
+
+            sidebar: Adw.NavigationPage {
+              title: _("Player");
+              child: Gtk.Stack sidebar_stack {
+                transition-type: crossfade;
+                Gtk.StackPage {
+                  name: "controller";
+                  child: $NocturnePlayingControlPage playing_page {};
+                }
+
+                Gtk.StackPage {
+                  name: "view";
+                  child: Adw.ToolbarView {
+                    extend-content-to-top-edge: true;
+                    [top]
+                    Adw.HeaderBar {
+                      [start]
+                      Gtk.Button {
+                        icon-name: "view-unfullscreen-symbolic";
+                        tooltip-text: _("Toggle Fullscreen");
+                        clicked => $toggle_fullscreen();
+                      }
+                      show-title: false;
+                    }
+
+                    content: Gtk.Box {
+                      styles [
+                        "view_box"
+                      ]
+                      valign: center;
+                      spacing: 20;
+                      orientation: vertical;
+
+                      Adw.ViewSwitcher {
+                        stack: stack;
+                        policy: wide;
+                        halign: center;
+                      }
+
+                      Adw.Clamp {
+                        maximum-size: 720;
+                        child: Gtk.Picture cover_el {
+                          styles [
+                            "card"
+                          ]
+                          overflow: hidden;
+                          halign: center;
+                          paintable: Adw.SpinnerPaintable {
+                            widget: cover_el;
+                          };
+                          accessibility {
+                            label: _("Song Cover");
+                          }
+                        };
+                      }
+                    };
+                  };
+                }
+              };
+            };
+            content: Adw.NavigationPage {
+              title: _("Song Details");
+              child: Adw.ToolbarView toolbarview {
+                [top]
+                Adw.HeaderBar header {
+                  title-widget: Adw.ViewSwitcher header_view_switcher {
+                    stack: stack;
+                    policy: wide;
+                  };
+                }
+                [bottom]
+                Adw.ViewSwitcherBar switch_bar {
                   stack: stack;
-                  policy: wide;
-                };
-              }
-              [bottom]
-              Adw.ViewSwitcherBar switch_bar {
-                stack: stack;
-              }
+                }
 
-              Adw.ViewStack stack {
-                enable-transitions: true;
-                vhomogeneous: true;
-                hhomogeneous: true;
-                Adw.ViewStackPage {
-                  name: "queue";
-                  title: _("Queue");
-                  icon-name: "playlist-symbolic";
-                  child: $NocturnePlayingQueuePage queue_page {};
+                Adw.ViewStack stack {
+                  enable-transitions: true;
+                  vhomogeneous: true;
+                  hhomogeneous: true;
+                  Adw.ViewStackPage {
+                    name: "queue";
+                    title: _("Queue");
+                    icon-name: "playlist-symbolic";
+                    child: $NocturnePlayingQueuePage queue_page {};
+                  }
+                  Adw.ViewStackPage {
+                    name: "lyrics";
+                    title: _("Lyrics");
+                    icon-name: "text-justify-center-symbolic";
+                    child: $NocturnePlayingLyricsPage lyrics_page {};
+                  }
                 }
-                Adw.ViewStackPage {
-                  name: "lyrics";
-                  title: _("Lyrics");
-                  icon-name: "text-justify-center-symbolic";
-                  child: $NocturnePlayingLyricsPage lyrics_page {};
-                }
-              }
+              };
             };
           };
         };

@@ -70,7 +70,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
     Gtk.Button previous_el {
       icon-name: "media-skip-backward-symbolic";
       valign: center;
-      clicked => $previous_clicked();
+      action-name: "app.player_previous";
       tooltip-text: _("Previous");
       styles [
         "circular"
@@ -85,7 +85,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
         child: Gtk.Button {
           icon-name: "media-playback-start-symbolic";
           valign: center;
-          clicked => $play_clicked();
+          action-name: "app.player_play";
           tooltip-text: _("Play");
           styles [
             "circular",
@@ -100,7 +100,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
         child: Gtk.Button {
           icon-name: "media-playback-pause-symbolic";
           valign: center;
-          clicked => $pause_clicked();
+          action-name: "app.player_pause";
           tooltip-text: _("Pause");
           styles [
             "circular",
@@ -114,7 +114,7 @@ template $NocturnePlayingFooter: Gtk.Overlay {
     Gtk.Button next_el {
       icon-name: "media-skip-forward-symbolic";
       valign: center;
-      clicked => $next_clicked();
+      action-name: "app.player_next";
       tooltip-text: _("Next");
       styles [
         "circular"

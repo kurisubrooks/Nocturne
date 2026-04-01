@@ -87,7 +87,7 @@ class Navidrome(Base):
                 params = {
                     **self.get_base_params(),
                     'id': model.id,
-                    'size': 480
+                    'size': 720
                 }
                 response = requests.get(
                     self.get_url('getCoverArt'),

@@ -95,7 +95,7 @@ class PlayingLyricsPage(Gtk.Stack):
             )
 
         GLib.idle_add(self.lrc_list_el.scroll_to,
-            min(max(selection_model.get_selected() + 5, 0), len(list(selection_model))-1),
+            min(max(selection_model.get_selected() + 7, 0), len(list(selection_model))-1),
             Gtk.ListScrollFlags.FOCUS,
             None
         )

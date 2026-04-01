@@ -59,10 +59,12 @@ class PlayingControlPage(Adw.NavigationPage):
                 label_negative = get_display_time(song.get_property('duration') - positionSeconds)
                 self.positive_progress_el.set_label(label_positive)
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
-                self.progress_el.get_adjustment().set_value(positionSeconds)
+                if not self.is_seeking:
+                    self.progress_el.get_adjustment().set_value(positionSeconds)
 
     def breakpoint_toggled(self, active:bool):
         self.show_sidebar_el.set_visible(active)
+        self.pop_status_stack.set_visible(not active)
         if isinstance(self.get_parent(), Adw.NavigationView) and not self.get_parent().get_vhomogeneous():
             self.get_parent().set_vhomogeneous(True)
 
@@ -74,38 +76,18 @@ class PlayingControlPage(Adw.NavigationPage):
         self.breakpoint_toggled(is_small and self.get_root().get_width() > 0)
 
     @Gtk.Template.Callback()
-    def seek_start(self, gesture, n_press, x, y):
+    def progress_bar_changed(self, scale_el, scroll_type, value):
+        value = scale_el.get_adjustment().get_value()
         self.is_seeking = True
-
-    @Gtk.Template.Callback()
-    def seek_end(self, gesture):
-        self.is_seeking = False
-
-    @Gtk.Template.Callback()
-    def progress_bar_changed(self, adjustment):
-        if self.is_seeking:
-            nanoseconds = int(adjustment.get_value() * Gst.SECOND)
+        def change_time(val):
+            self.is_seeking = False
+            nanoseconds = int(val * Gst.SECOND)
             self.player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
             )
-
-    @Gtk.Template.Callback()
-    def play_clicked(self, button):
-        self.player.gst.set_state(Gst.State.PLAYING)
-
-    @Gtk.Template.Callback()
-    def pause_clicked(self, button):
-        self.player.gst.set_state(Gst.State.PAUSED)
-
-    @Gtk.Template.Callback()
-    def next_clicked(self, button):
-        self.player.handle_song_change_request("next")
-
-    @Gtk.Template.Callback()
-    def previous_clicked(self, button):
-        self.player.handle_song_change_request("previous")
+        GLib.timeout_add(100, lambda v=value: change_time(v) if v == scale_el.get_adjustment().get_value() else None)
 
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
@@ -222,25 +204,26 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        @media (prefers-color-scheme: dark) {{
-            window.popout-window,
-            window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
-                background-image: linear-gradient(
-                    to bottom right,
-                    rgba({','.join([str(c) for c in palette[0]])},0.3),
-                    rgba({','.join([str(c) for c in palette[1]])},0.3)
-                );
-            }}
+        window.dynamic-accent-bg, window.popout-window {{
+            --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
         }}
-        @media (prefers-color-scheme: light) {{
-            window.popout-window,
-            window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
-                background-image: linear-gradient(
-                    to bottom right,
-                    rgba({','.join([str(c) for c in palette[0]])},0.3),
-                    rgba({','.join([str(c) for c in palette[1]])},0.3)
-                );
-            }}
+
+        window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
+            background-image: linear-gradient(
+                to bottom right,
+                rgba({','.join([str(c) for c in palette[0]])},0.3),
+                rgba({','.join([str(c) for c in palette[1]])},0.3)
+            );
+        }}
+        window.popout-window {{
+            background-image: linear-gradient(
+                to bottom right,
+                rgba({','.join([str(c) for c in palette[0]])},0.6),
+                rgba({','.join([str(c) for c in palette[1]])},0.6)
+            );
+        }}
+        window.popout-window .fullscreen-bottom-bar {{
+            background-color: color-mix(in srgb, var(--window-bg-color) 50%, rgba({','.join([str(c) for c in palette[0]])}, 0.25));
         }}
         .dynamic-accent-bg {{
             transition: background-image 0.5s ease-in-out;

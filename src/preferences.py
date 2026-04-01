@@ -114,7 +114,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
                             if raw_bytes := song_model.get_property('gdkPaintableBytes'):
                                 thread = threading.Thread(
                                     target=self.get_root().playing_page.update_palette,
-                                    args=(raw_bytes,)
+                                    args=(bytes(raw_bytes.get_data()),)
                                 )
                                 GLib.idle_add(thread.start)
             else:
